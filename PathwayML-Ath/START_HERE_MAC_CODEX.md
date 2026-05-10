@@ -167,6 +167,38 @@ about 0.951
 False
 ```
 
+## 2026-05-10 Update: Reproducible Multi-Seed Averaging
+
+The pipeline now also supports a fixed seed list for averaged, reproducible
+robustness reporting:
+
+```bash
+python run_no_embedding_reproducible.py --seeds 1-20 --no-figures
+```
+
+This keeps a single-seed reference run available, but reports the main
+robustness result across seeds 1--20. Each seed regenerates hard negatives,
+the train/test split, GO feature selection, and model random states. The seed
+list is fixed, so the average is reproducible in the same software environment.
+
+Mac run generated on 2026-05-10:
+
+```text
+XGBoost Test AUROC = 0.955 +/- 0.010 SD (SE = 0.002), seeds 1--20
+Random Forest Test AUROC = 0.945 +/- 0.012 SD
+Logistic Regression Test AUROC = 0.918 +/- 0.021 SD
+```
+
+New outputs:
+
+```text
+tables/multiseed/results_no_embedding_multiseed.json
+tables/multiseed/multiseed_runs.csv
+tables/multiseed/multiseed_summary.csv
+tables/multiseed/multiseed_candidate_results.csv
+tables/multiseed/reproducibility/seed_0001..seed_0020/
+```
+
 ## What To Ask Mac Codex Next
 
 Recommended prompt:
@@ -220,4 +252,3 @@ High-priority next tasks:
    rerun ORA/overlap checks.
 4. Consider adding grouped or pathway-family holdout validation if the paper
    needs stronger claims about generalization.
-

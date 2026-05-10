@@ -9,10 +9,16 @@ removes dense gene embeddings. It fixes the problems in the Claude handoff:
 * all random samples, train/test splits, candidates, and selected GO terms
   are saved under tables/reproducibility/;
 * tables are regenerated from one run instead of being mixed from old runs.
+* optional fixed-seed-list averaging reports reproducible mean +/- SD/SE
+  across independent runs.
 
 Run from the repository root:
 
     python run_no_embedding_reproducible.py
+
+For reproducible robustness averaging over fixed seeds:
+
+    python run_no_embedding_reproducible.py --seeds 1-20 --no-figures
 """
 
 from __future__ import annotations
@@ -60,7 +66,8 @@ from sklearn.preprocessing import StandardScaler
 warnings.filterwarnings("ignore")
 
 
-SEED = 42
+DEFAULT_REFERENCE_SEED = 42
+DEFAULT_CANDIDATE_SEED = 42
 DATA_DIR = Path("data")
 FIG_DIR = Path("figures")
 TABLE_DIR = Path("tables")
@@ -86,16 +93,21 @@ def ensure_dirs() -> None:
         path.mkdir(parents=True, exist_ok=True)
 
 
-def stable_int(text: str, seed: int = SEED) -> int:
+def stable_int(text: str, seed: int = DEFAULT_REFERENCE_SEED) -> int:
     h = hashlib.blake2b(f"{seed}:{text}".encode("utf-8"), digest_size=8).digest()
     return int.from_bytes(h, byteorder="little", signed=False)
 
 
-def stable_subsample(items: Sequence[str], n: int, salt: str) -> List[str]:
+def stable_subsample(
+    items: Sequence[str],
+    n: int,
+    salt: str,
+    seed: int = DEFAULT_REFERENCE_SEED,
+) -> List[str]:
     values = list(items)
     if len(values) <= n:
         return values
-    rng = np.random.default_rng(stable_int("|".join(values) + "|" + salt))
+    rng = np.random.default_rng(stable_int("|".join(values) + "|" + salt, seed=seed))
     idx = rng.choice(len(values), size=n, replace=False)
     return [values[i] for i in sorted(idx)]
 
@@ -201,9 +213,14 @@ def go_frequency(gene_set: Iterable[str], go_terms: Sequence[str], gene_go: Dict
     return np.asarray(freqs, dtype=float)
 
 
-def jaccard_stats(gene_set: Iterable[str], gene_go: Dict[str, set], salt: str) -> np.ndarray:
+def jaccard_stats(
+    gene_set: Iterable[str],
+    gene_go: Dict[str, set],
+    salt: str,
+    seed: int = DEFAULT_REFERENCE_SEED,
+) -> np.ndarray:
     genes = sorted(set(gene_set))
-    genes = stable_subsample(genes, MAX_JACCARD_GENES, salt=salt)
+    genes = stable_subsample(genes, MAX_JACCARD_GENES, salt=salt, seed=seed)
     values: List[float] = []
     for i, g1 in enumerate(genes):
         go1 = gene_go.get(g1, set())
@@ -223,8 +240,13 @@ def size_features(gene_set: Iterable[str]) -> np.ndarray:
     return np.asarray([float(n), float(np.log1p(n))], dtype=float)
 
 
-def pathway_jaccard_mean(gene_set: Iterable[str], gene_go: Dict[str, set], salt: str) -> float:
-    return float(jaccard_stats(gene_set, gene_go, salt=salt)[0])
+def pathway_jaccard_mean(
+    gene_set: Iterable[str],
+    gene_go: Dict[str, set],
+    salt: str,
+    seed: int = DEFAULT_REFERENCE_SEED,
+) -> float:
+    return float(jaccard_stats(gene_set, gene_go, salt=salt, seed=seed)[0])
 
 
 def co_annotation_cluster(
@@ -265,8 +287,8 @@ def co_annotation_cluster(
     return cluster
 
 
-def build_samples(data: DataBundle) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
-    rng = np.random.default_rng(SEED)
+def build_samples(data: DataBundle, seed: int) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    rng = np.random.default_rng(seed)
     pathway_ids = sorted(data.pathways)
     pathway_sets = [data.pathways[pid] for pid in pathway_ids]
     n_pos = len(pathway_sets)
@@ -275,7 +297,7 @@ def build_samples(data: DataBundle) -> Tuple[List[Dict[str, Any]], Dict[str, Any
     n_remainder = n_neg - 4 * n_per_type
 
     real_jaccards = [
-        pathway_jaccard_mean(genes, data.gene_go, salt=f"real:{pid}")
+        pathway_jaccard_mean(genes, data.gene_go, salt=f"real:{pid}", seed=seed)
         for pid, genes in zip(pathway_ids, pathway_sets)
     ]
     jac_p25 = float(np.percentile(real_jaccards, 25))
@@ -290,7 +312,7 @@ def build_samples(data: DataBundle) -> Tuple[List[Dict[str, Any]], Dict[str, Any
         attempts += 1
         size = int(rng.choice(data.pathway_sizes))
         genes = set(rng_choice_list(rng, data.background_genes, size, replace=False))
-        jm = pathway_jaccard_mean(genes, data.gene_go, salt=f"negA:{attempts}")
+        jm = pathway_jaccard_mean(genes, data.gene_go, salt=f"negA:{attempts}", seed=seed)
         if jm >= jac_p25 or attempts >= n_per_type * 20:
             negatives.append(
                 {
@@ -381,6 +403,7 @@ def select_go_terms(
     train_records: Sequence[Dict[str, Any]],
     data: DataBundle,
     cv_splits: int,
+    seed: int,
 ) -> Tuple[List[str], pd.DataFrame, pd.DataFrame]:
     y_train = np.asarray([record["label"] for record in train_records], dtype=int)
     freq_train = np.vstack(
@@ -391,7 +414,7 @@ def select_go_terms(
     freq_vt = vt.fit_transform(freq_train)
     kept_terms = [term for term, keep in zip(data.go_terms, vt.get_support()) if keep]
 
-    mi = mutual_info_classif(freq_vt, y_train, random_state=SEED, n_neighbors=5)
+    mi = mutual_info_classif(freq_vt, y_train, random_state=seed, n_neighbors=5)
     order = np.argsort(mi)[::-1]
     mi_sorted = mi[order]
     mi_total = float(mi_sorted.sum())
@@ -406,7 +429,7 @@ def select_go_terms(
     k_values.append(len(kept_terms))
     k_values = sorted(set(k for k in k_values if k >= 3))
 
-    skf = StratifiedKFold(n_splits=cv_splits, shuffle=True, random_state=SEED)
+    skf = StratifiedKFold(n_splits=cv_splits, shuffle=True, random_state=seed)
     rows: List[Dict[str, Any]] = []
     for k in k_values:
         cols = order[:k]
@@ -418,7 +441,8 @@ def select_go_terms(
                 max_depth=4,
                 learning_rate=0.05,
                 eval_metric="logloss",
-                random_state=SEED,
+                random_state=seed,
+                n_jobs=1,
                 verbosity=0,
             )
             model.fit(x_k[tr], y_train[tr])
@@ -451,7 +475,10 @@ def select_go_terms(
 
 
 def build_feature_matrix(
-    records: Sequence[Dict[str, Any]], selected_go: Sequence[str], data: DataBundle
+    records: Sequence[Dict[str, Any]],
+    selected_go: Sequence[str],
+    data: DataBundle,
+    seed: int,
 ) -> Tuple[np.ndarray, List[str], Dict[str, List[int]]]:
     feature_names = (
         list(selected_go)
@@ -465,7 +492,7 @@ def build_feature_matrix(
             np.concatenate(
                 [
                     go_frequency(genes, selected_go, data.gene_go),
-                    jaccard_stats(genes, data.gene_go, salt=f"feature:{record['id']}"),
+                    jaccard_stats(genes, data.gene_go, salt=f"feature:{record['id']}", seed=seed),
                     size_features(genes),
                 ]
             )
@@ -478,7 +505,7 @@ def build_feature_matrix(
     return np.vstack(rows), feature_names, groups
 
 
-def make_models() -> Dict[str, Any]:
+def make_models(seed: int) -> Dict[str, Any]:
     return {
         "XGBoost": xgb.XGBClassifier(
             n_estimators=500,
@@ -491,7 +518,8 @@ def make_models() -> Dict[str, Any]:
             reg_alpha=0.1,
             reg_lambda=1.0,
             eval_metric="logloss",
-            random_state=SEED,
+            random_state=seed,
+            n_jobs=1,
             verbosity=0,
         ),
         "Random Forest": RandomForestClassifier(
@@ -500,8 +528,8 @@ def make_models() -> Dict[str, Any]:
             min_samples_split=5,
             min_samples_leaf=2,
             class_weight="balanced",
-            random_state=SEED,
-            n_jobs=-1,
+            random_state=seed,
+            n_jobs=1,
         ),
         "Logistic Regression": make_pipeline(
             StandardScaler(),
@@ -509,7 +537,7 @@ def make_models() -> Dict[str, Any]:
                 C=1.0,
                 class_weight="balanced",
                 max_iter=3000,
-                random_state=SEED,
+                random_state=seed,
                 solver="lbfgs",
             ),
         ),
@@ -525,9 +553,10 @@ def evaluate_model(
     y_test: np.ndarray,
     cv_splits: int,
     cv_repeats: int,
+    seed: int,
 ) -> Tuple[Dict[str, Any], Any]:
     rskf = RepeatedStratifiedKFold(
-        n_splits=cv_splits, n_repeats=cv_repeats, random_state=SEED
+        n_splits=cv_splits, n_repeats=cv_repeats, random_state=seed
     )
     aucs: List[float] = []
     auprcs: List[float] = []
@@ -568,6 +597,7 @@ def evaluate_ablation(
     groups: Dict[str, List[int]],
     cv_splits: int,
     cv_repeats: int,
+    seed: int,
 ) -> pd.DataFrame:
     idx_go, idx_jac, idx_size = groups["go"], groups["jaccard"], groups["size"]
     configs = {
@@ -583,7 +613,7 @@ def evaluate_ablation(
         "Cumul: +GO freq": idx_go + idx_jac + idx_size,
     }
     rows: List[Dict[str, Any]] = []
-    base_model = make_models()["XGBoost"]
+    base_model = make_models(seed)["XGBoost"]
     for cfg, idx in configs.items():
         result, _model = evaluate_model(
             cfg,
@@ -594,6 +624,7 @@ def evaluate_ablation(
             y_test,
             cv_splits=cv_splits,
             cv_repeats=cv_repeats,
+            seed=seed,
         )
         rows.append(
             {
@@ -611,8 +642,8 @@ def evaluate_ablation(
     return df
 
 
-def construct_candidates(data: DataBundle) -> Dict[str, List[str]]:
-    rng = np.random.default_rng(SEED + 1000)
+def construct_candidates(data: DataBundle, candidate_seed: int) -> Dict[str, List[str]]:
+    rng = np.random.default_rng(candidate_seed + 1000)
     go_target = "GO:0006979"
     stress_genes = sorted(gene for gene in data.gene_go if go_target in data.gene_go[gene])
 
@@ -680,11 +711,12 @@ def score_candidates(
     model: Any,
     selected_go: Sequence[str],
     data: DataBundle,
+    seed: int,
 ) -> pd.DataFrame:
     rows: List[Dict[str, Any]] = []
     for cid, genes in candidates.items():
         fv, _names, _groups = build_feature_matrix(
-            [{"id": cid, "genes": genes, "label": -1}], selected_go, data
+            [{"id": cid, "genes": genes, "label": -1}], selected_go, data, seed=seed
         )
         score = float(model.predict_proba(fv)[0, 1])
         gene_set = set(genes)
@@ -738,6 +770,8 @@ def save_json(path: Path, obj: Any) -> None:
 
 
 def write_tables(
+    seed: int,
+    repro_dir: Path,
     data: DataBundle,
     records: Sequence[Dict[str, Any]],
     split_info: Dict[str, Any],
@@ -774,15 +808,16 @@ def write_tables(
     mi_df.to_csv(TABLE_DIR / "selected_go_terms.csv", index=False)
     candidate_df.to_csv(TABLE_DIR / "candidate_results.csv", index=False)
 
-    save_json(REPRO_DIR / "samples.json", records)
-    save_json(REPRO_DIR / "splits.json", split_info)
-    save_json(REPRO_DIR / "selected_go_terms.json", list(selected_go))
-    save_json(REPRO_DIR / "candidate_gene_sets.json", candidates)
-    save_json(REPRO_DIR / "feature_names.json", list(feature_names))
+    repro_dir.mkdir(parents=True, exist_ok=True)
+    save_json(repro_dir / "samples.json", records)
+    save_json(repro_dir / "splits.json", split_info)
+    save_json(repro_dir / "selected_go_terms.json", list(selected_go))
+    save_json(repro_dir / "candidate_gene_sets.json", candidates)
+    save_json(repro_dir / "feature_names.json", list(feature_names))
 
     final = {
         "generated_by": "run_no_embedding_reproducible.py",
-        "seed": SEED,
+        "seed": seed,
         "cv": {"splits": cv_splits, "repeats": cv_repeats, "folds": cv_splits * cv_repeats},
         "dataset": {
             "n_pathways": len(data.pathways),
@@ -916,48 +951,108 @@ def plot_outputs(
     plt.close()
 
 
-def main(argv: Sequence[str] | None = None) -> Dict[str, Any]:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--cv-splits", type=int, default=5)
-    parser.add_argument("--cv-repeats", type=int, default=5)
-    parser.add_argument("--no-figures", action="store_true")
-    args = parser.parse_args(argv)
+def parse_seed_list(value: str) -> List[int]:
+    """Parse comma-separated seeds and inclusive ranges such as 1-5,10,42."""
+    seeds: List[int] = []
+    for part in value.split(","):
+        token = part.strip()
+        if not token:
+            continue
+        if "-" in token:
+            start_text, end_text = token.split("-", 1)
+            start, end = int(start_text), int(end_text)
+            step = 1 if end >= start else -1
+            seeds.extend(range(start, end + step, step))
+        else:
+            seeds.append(int(token))
+    seen = set()
+    unique: List[int] = []
+    for seed in seeds:
+        if seed not in seen:
+            unique.append(seed)
+            seen.add(seed)
+    if not unique:
+        raise ValueError("At least one seed is required")
+    return unique
 
-    np.random.seed(SEED)
-    ensure_dirs()
 
-    print("Loading data...")
-    data = load_data()
-    print(f"  Pathways: {len(data.pathways)} (KEGG={data.n_kegg}, AraCyc={data.n_aracyc})")
-    print(f"  Genes with GO: {len(data.gene_go)}")
-    print(f"  Filtered GO terms: {len(data.go_terms)}")
+def write_reproducibility_artifacts(
+    repro_dir: Path,
+    records: Sequence[Dict[str, Any]],
+    split_info: Dict[str, Any],
+    selected_go: Sequence[str],
+    candidates: Dict[str, List[str]],
+    feature_names: Sequence[str],
+) -> None:
+    repro_dir.mkdir(parents=True, exist_ok=True)
+    save_json(repro_dir / "samples.json", records)
+    save_json(repro_dir / "splits.json", split_info)
+    save_json(repro_dir / "selected_go_terms.json", list(selected_go))
+    save_json(repro_dir / "candidate_gene_sets.json", candidates)
+    save_json(repro_dir / "feature_names.json", list(feature_names))
 
-    print("Generating deterministic hard negatives...")
-    records, sample_meta = build_samples(data)
+
+def compact_dataset_summary(
+    data: DataBundle,
+    selected_go: Sequence[str],
+    feature_names: Sequence[str],
+    sample_meta: Dict[str, Any],
+) -> Dict[str, Any]:
+    return {
+        "n_pathways": len(data.pathways),
+        "n_kegg": data.n_kegg,
+        "n_aracyc": data.n_aracyc,
+        "n_genes": len(data.gene_go),
+        "n_go_filtered": len(data.go_terms),
+        "n_go_selected": len(selected_go),
+        "D": len(feature_names),
+        "features": f"GO freq ({len(selected_go)}) + Jaccard (4) + Size (2) = {len(feature_names)}",
+        "negatives": sample_meta,
+    }
+
+
+def run_single_analysis(
+    data: DataBundle,
+    seed: int,
+    candidate_seed: int,
+    cv_splits: int,
+    cv_repeats: int,
+    write_outputs: bool,
+    write_figures: bool,
+    with_ablation: bool,
+    with_shap: bool,
+    repro_dir: Path,
+) -> Dict[str, Any]:
+    np.random.seed(seed)
+
+    print(f"Generating deterministic hard negatives (seed={seed})...")
+    records, sample_meta = build_samples(data, seed=seed)
     y_all = np.asarray([record["label"] for record in records], dtype=int)
     all_idx = np.arange(len(records))
     train_idx, test_idx = train_test_split(
-        all_idx, test_size=0.20, random_state=SEED, stratify=y_all
+        all_idx, test_size=0.20, random_state=seed, stratify=y_all
     )
     train_records = [records[int(i)] for i in train_idx]
     split_info = {
-        "random_state": SEED,
+        "random_state": seed,
         "train_ids": [records[int(i)]["id"] for i in train_idx],
         "test_ids": [records[int(i)]["id"] for i in test_idx],
     }
 
     print("Selecting GO features on training split only...")
-    selected_go, fs_df, mi_df = select_go_terms(train_records, data, cv_splits=args.cv_splits)
+    selected_go, fs_df, mi_df = select_go_terms(
+        train_records, data, cv_splits=cv_splits, seed=seed
+    )
     print(f"  Selected GO terms: {len(selected_go)}")
 
     print("Building no-embedding features...")
-    x_all, feature_names, groups = build_feature_matrix(records, selected_go, data)
+    x_all, feature_names, groups = build_feature_matrix(records, selected_go, data, seed=seed)
     x_train, x_test = x_all[train_idx], x_all[test_idx]
     y_train, y_test = y_all[train_idx], y_all[test_idx]
     print(f"  D={x_all.shape[1]} = GO({len(selected_go)}) + Jaccard(4) + Size(2)")
 
     print("Training models...")
-    models = make_models()
+    models = make_models(seed)
     model_results: Dict[str, Dict[str, Any]] = {}
     fitted_models: Dict[str, Any] = {}
     for name, model in models.items():
@@ -968,8 +1063,9 @@ def main(argv: Sequence[str] | None = None) -> Dict[str, Any]:
             y_train,
             x_test,
             y_test,
-            cv_splits=args.cv_splits,
-            cv_repeats=args.cv_repeats,
+            cv_splits=cv_splits,
+            cv_repeats=cv_repeats,
+            seed=seed,
         )
         model_results[name] = result
         fitted_models[name] = fitted
@@ -978,56 +1074,305 @@ def main(argv: Sequence[str] | None = None) -> Dict[str, Any]:
             f"{result['cv_auroc_se']:.3f} SE, Test={result['test_auroc']:.3f}"
         )
 
-    print("Running no-embedding ablation...")
-    ablation_df = evaluate_ablation(
-        x_train,
-        y_train,
-        x_test,
-        y_test,
-        groups,
-        cv_splits=args.cv_splits,
-        cv_repeats=args.cv_repeats,
-    )
+    if with_ablation:
+        print("Running no-embedding ablation...")
+        ablation_df = evaluate_ablation(
+            x_train,
+            y_train,
+            x_test,
+            y_test,
+            groups,
+            cv_splits=cv_splits,
+            cv_repeats=cv_repeats,
+            seed=seed,
+        )
+    else:
+        ablation_df = pd.DataFrame()
 
-    print("Computing SHAP values...")
-    xgb_model = fitted_models["XGBoost"]
-    explainer = shap.TreeExplainer(xgb_model)
-    shap_values = explainer.shap_values(x_test)
-    mean_abs = np.mean(np.abs(shap_values), axis=0)
-    shap_df = pd.DataFrame(
-        {
-            "feature": feature_names,
-            "mean_abs_shap": mean_abs,
-            "pct_total": mean_abs / mean_abs.sum() * 100,
-        }
-    ).sort_values("mean_abs_shap", ascending=False)
+    if with_shap:
+        print("Computing SHAP values...")
+        xgb_model = fitted_models["XGBoost"]
+        explainer = shap.TreeExplainer(xgb_model)
+        shap_values = explainer.shap_values(x_test)
+        mean_abs = np.mean(np.abs(shap_values), axis=0)
+        shap_df = pd.DataFrame(
+            {
+                "feature": feature_names,
+                "mean_abs_shap": mean_abs,
+                "pct_total": mean_abs / mean_abs.sum() * 100,
+            }
+        ).sort_values("mean_abs_shap", ascending=False)
+    else:
+        xgb_model = fitted_models["XGBoost"]
+        shap_df = pd.DataFrame()
 
     print("Scoring deterministic candidates...")
-    candidates = construct_candidates(data)
-    candidate_df = score_candidates(candidates, xgb_model, selected_go, data)
+    candidates = construct_candidates(data, candidate_seed=candidate_seed)
+    candidate_df = score_candidates(candidates, xgb_model, selected_go, data, seed=seed)
 
-    print("Writing tables and reproducibility artifacts...")
-    results = write_tables(
+    if write_outputs:
+        if ablation_df.empty or shap_df.empty:
+            raise ValueError("Main output writing requires ablation and SHAP results")
+        print("Writing tables and reproducibility artifacts...")
+        results = write_tables(
+            seed=seed,
+            repro_dir=repro_dir,
+            data=data,
+            records=records,
+            split_info=split_info,
+            sample_meta=sample_meta,
+            selected_go=selected_go,
+            feature_names=feature_names,
+            model_results=model_results,
+            ablation_df=ablation_df,
+            shap_df=shap_df,
+            fs_df=fs_df,
+            mi_df=mi_df,
+            candidates=candidates,
+            candidate_df=candidate_df,
+            cv_splits=cv_splits,
+            cv_repeats=cv_repeats,
+        )
+
+        if write_figures:
+            print("Writing figures...")
+            plot_outputs(model_results, ablation_df, shap_df, fs_df, candidate_df, data)
+    else:
+        results = {
+            "generated_by": "run_no_embedding_reproducible.py",
+            "seed": seed,
+            "candidate_seed": candidate_seed,
+            "cv": {"splits": cv_splits, "repeats": cv_repeats, "folds": cv_splits * cv_repeats},
+            "dataset": compact_dataset_summary(data, selected_go, feature_names, sample_meta),
+            "split": {
+                "n_train": len(split_info["train_ids"]),
+                "n_test": len(split_info["test_ids"]),
+                "feature_selection": "GO terms selected on training split only",
+            },
+            "performance": model_results,
+            "candidates": candidate_df.to_dict(orient="records"),
+            "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+        }
+        write_reproducibility_artifacts(
+            repro_dir=repro_dir,
+            records=records,
+            split_info=split_info,
+            selected_go=selected_go,
+            candidates=candidates,
+            feature_names=feature_names,
+        )
+
+    return results
+
+
+def summarize_multiseed_runs(run_df: pd.DataFrame) -> pd.DataFrame:
+    metric_cols = [
+        "cv_auroc_mean",
+        "cv_auprc_mean",
+        "test_auroc",
+        "test_auprc",
+        "test_f1",
+        "test_precision",
+        "test_recall",
+        "n_go_selected",
+        "D",
+    ]
+    rows: List[Dict[str, Any]] = []
+    for model, group in run_df.groupby("model", sort=False):
+        row: Dict[str, Any] = {"model": model, "n_runs": int(len(group))}
+        for metric in metric_cols:
+            values = group[metric].astype(float)
+            sd = float(values.std(ddof=1)) if len(values) > 1 else 0.0
+            row[f"{metric}_mean"] = float(values.mean())
+            row[f"{metric}_sd"] = sd
+            row[f"{metric}_se"] = float(sd / np.sqrt(len(values))) if len(values) > 1 else 0.0
+            row[f"{metric}_min"] = float(values.min())
+            row[f"{metric}_max"] = float(values.max())
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def run_multiseed_analysis(
+    data: DataBundle,
+    seeds: Sequence[int],
+    candidate_seed: int,
+    cv_splits: int,
+    cv_repeats: int,
+    output_dir: Path,
+    save_artifacts: bool,
+) -> Dict[str, Any]:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    repro_root = output_dir / "reproducibility"
+    rows: List[Dict[str, Any]] = []
+    candidate_rows: List[Dict[str, Any]] = []
+    run_payloads: List[Dict[str, Any]] = []
+
+    for i, seed in enumerate(seeds, start=1):
+        print(f"\nMulti-seed run {i}/{len(seeds)} (seed={seed})")
+        seed_repro_dir = repro_root / f"seed_{seed:04d}"
+        if not save_artifacts:
+            seed_repro_dir = output_dir / "_tmp_repro_not_saved"
+        result = run_single_analysis(
+            data=data,
+            seed=seed,
+            candidate_seed=candidate_seed,
+            cv_splits=cv_splits,
+            cv_repeats=cv_repeats,
+            write_outputs=False,
+            write_figures=False,
+            with_ablation=False,
+            with_shap=False,
+            repro_dir=seed_repro_dir,
+        )
+        if not save_artifacts:
+            for path in seed_repro_dir.glob("*"):
+                path.unlink()
+            seed_repro_dir.rmdir()
+
+        run_payloads.append(result)
+        for model_name, metrics in result["performance"].items():
+            rows.append(
+                {
+                    "seed": seed,
+                    "model": model_name,
+                    "n_go_selected": result["dataset"]["n_go_selected"],
+                    "D": result["dataset"]["D"],
+                    "n_train": result["split"]["n_train"],
+                    "n_test": result["split"]["n_test"],
+                    **{
+                        key: value
+                        for key, value in metrics.items()
+                        if key
+                        in {
+                            "cv_auroc_mean",
+                            "cv_auroc_std",
+                            "cv_auroc_se",
+                            "cv_auprc_mean",
+                            "cv_auprc_std",
+                            "test_auroc",
+                            "test_auprc",
+                            "test_f1",
+                            "test_precision",
+                            "test_recall",
+                        }
+                    },
+                }
+            )
+        for candidate in result["candidates"]:
+            candidate_rows.append({"seed": seed, **candidate})
+
+    run_df = pd.DataFrame(rows)
+    summary_df = summarize_multiseed_runs(run_df)
+    candidate_df = pd.DataFrame(candidate_rows)
+    run_df.to_csv(output_dir / "multiseed_runs.csv", index=False)
+    summary_df.to_csv(output_dir / "multiseed_summary.csv", index=False)
+    candidate_df.to_csv(output_dir / "multiseed_candidate_results.csv", index=False)
+
+    payload = {
+        "generated_by": "run_no_embedding_reproducible.py --seeds",
+        "seeds": list(seeds),
+        "candidate_seed": candidate_seed,
+        "cv": {"splits": cv_splits, "repeats": cv_repeats, "folds": cv_splits * cv_repeats},
+        "summary": summary_df.to_dict(orient="records"),
+        "runs": run_payloads,
+        "note": (
+            "Multi-seed results are reproducible for this fixed seed list. "
+            "Each seed regenerates negatives, train/test split, GO feature selection, "
+            "and model random states."
+        ),
+    }
+    save_json(output_dir / "results_no_embedding_multiseed.json", payload)
+    return payload
+
+
+def main(argv: Sequence[str] | None = None) -> Dict[str, Any]:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--cv-splits", type=int, default=5)
+    parser.add_argument("--cv-repeats", type=int, default=5)
+    parser.add_argument("--seed", type=int, default=DEFAULT_REFERENCE_SEED)
+    parser.add_argument("--candidate-seed", type=int, default=DEFAULT_CANDIDATE_SEED)
+    parser.add_argument(
+        "--seeds",
+        type=str,
+        default=None,
+        help="Optional fixed seed list for reproducible averaging, e.g. '1-20' or '1,2,3'.",
+    )
+    parser.add_argument(
+        "--reference-seed",
+        type=int,
+        default=DEFAULT_REFERENCE_SEED,
+        help="Reference seed used for standard tables when --seeds is provided.",
+    )
+    parser.add_argument(
+        "--no-reference",
+        action="store_true",
+        help="With --seeds, skip regenerating the standard single-seed tables/figures.",
+    )
+    parser.add_argument(
+        "--multi-output-dir",
+        type=Path,
+        default=TABLE_DIR / "multiseed",
+        help="Directory for multi-seed CSV/JSON outputs.",
+    )
+    parser.add_argument(
+        "--no-multiseed-artifacts",
+        action="store_true",
+        help="With --seeds, skip saving per-seed samples/splits/selected terms.",
+    )
+    parser.add_argument("--no-figures", action="store_true")
+    args = parser.parse_args(argv)
+
+    ensure_dirs()
+
+    print("Loading data...")
+    data = load_data()
+    print(f"  Pathways: {len(data.pathways)} (KEGG={data.n_kegg}, AraCyc={data.n_aracyc})")
+    print(f"  Genes with GO: {len(data.gene_go)}")
+    print(f"  Filtered GO terms: {len(data.go_terms)}")
+
+    if args.seeds:
+        seeds = parse_seed_list(args.seeds)
+        if not args.no_reference:
+            print(f"\nReference run (seed={args.reference_seed})")
+            run_single_analysis(
+                data=data,
+                seed=args.reference_seed,
+                candidate_seed=args.candidate_seed,
+                cv_splits=args.cv_splits,
+                cv_repeats=args.cv_repeats,
+                write_outputs=True,
+                write_figures=not args.no_figures,
+                with_ablation=True,
+                with_shap=True,
+                repro_dir=REPRO_DIR,
+            )
+        print(f"\nRunning reproducible multi-seed average: seeds={seeds}")
+        results = run_multiseed_analysis(
+            data=data,
+            seeds=seeds,
+            candidate_seed=args.candidate_seed,
+            cv_splits=args.cv_splits,
+            cv_repeats=args.cv_repeats,
+            output_dir=args.multi_output_dir,
+            save_artifacts=not args.no_multiseed_artifacts,
+        )
+        print("Done.")
+        print(f"  Multi-seed results: {args.multi_output_dir / 'results_no_embedding_multiseed.json'}")
+        print(f"  Multi-seed summary: {args.multi_output_dir / 'multiseed_summary.csv'}")
+        return results
+
+    results = run_single_analysis(
         data=data,
-        records=records,
-        split_info=split_info,
-        sample_meta=sample_meta,
-        selected_go=selected_go,
-        feature_names=feature_names,
-        model_results=model_results,
-        ablation_df=ablation_df,
-        shap_df=shap_df,
-        fs_df=fs_df,
-        mi_df=mi_df,
-        candidates=candidates,
-        candidate_df=candidate_df,
+        seed=args.seed,
+        candidate_seed=args.candidate_seed,
         cv_splits=args.cv_splits,
         cv_repeats=args.cv_repeats,
+        write_outputs=True,
+        write_figures=not args.no_figures,
+        with_ablation=True,
+        with_shap=True,
+        repro_dir=REPRO_DIR,
     )
-
-    if not args.no_figures:
-        print("Writing figures...")
-        plot_outputs(model_results, ablation_df, shap_df, fs_df, candidate_df, data)
 
     print("Done.")
     print(f"  Main results: {TABLE_DIR / 'results_no_embedding.json'}")

@@ -1,0 +1,2843 @@
+{
+  "candidate_seed": 42,
+  "cv": {
+    "folds": 25,
+    "repeats": 5,
+    "splits": 5
+  },
+  "generated_by": "run_no_embedding_reproducible.py --seeds",
+  "note": "Multi-seed results are reproducible for this fixed seed list. Each seed regenerates negatives, train/test split, GO feature selection, and model random states.",
+  "runs": [
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9095005989074707
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9009608626365662
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9614381194114685
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.0007899296469986439
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 161,
+        "features": "GO freq (155) + Jaccard (4) + Size (2) = 161",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 155,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2375,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.17402030336196683,
+          "real_pathway_jaccard_p25": 0.12069256962547767
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8186823362425342,
+          "cv_auprc_std": 0.027245727591779813,
+          "cv_auroc_mean": 0.8953599138447577,
+          "cv_auroc_se": 0.003135850065179256,
+          "cv_auroc_std": 0.01567925032589628,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8500847549154825,
+          "test_auroc": 0.9083933470507545,
+          "test_f1": 0.7553648068669528,
+          "test_precision": 0.704,
+          "test_recall": 0.8148148148148148
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8737768816830643,
+          "cv_auprc_std": 0.03280376972772033,
+          "cv_auroc_mean": 0.9363098655485358,
+          "cv_auroc_se": 0.003122457647412665,
+          "cv_auroc_std": 0.015612288237063326,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.9053984040726194,
+          "test_auroc": 0.9549039780521262,
+          "test_f1": 0.8235294117647058,
+          "test_precision": 0.8053097345132744,
+          "test_recall": 0.8425925925925926
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.9008310641015556,
+          "cv_auprc_std": 0.024525154117523658,
+          "cv_auroc_mean": 0.9494638892988287,
+          "cv_auroc_se": 0.002398253102386659,
+          "cv_auroc_std": 0.011991265511933295,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.9365642857043376,
+          "test_auroc": 0.9608624828532235,
+          "test_f1": 0.8611111111111112,
+          "test_precision": 0.8611111111111112,
+          "test_recall": 0.8611111111111112
+        }
+      },
+      "seed": 1,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.921883225440979
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9115520715713501
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9978694915771484
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.0011348071275278926
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 73,
+        "features": "GO freq (67) + Jaccard (4) + Size (2) = 73",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 67,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2267,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.17450380427653156,
+          "real_pathway_jaccard_p25": 0.1217834114431312
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8760221852784161,
+          "cv_auprc_std": 0.04059575473409944,
+          "cv_auroc_mean": 0.9307923994061079,
+          "cv_auroc_se": 0.0037985493374790374,
+          "cv_auroc_std": 0.018992746687395187,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8181372131606075,
+          "test_auroc": 0.8867026748971194,
+          "test_f1": 0.7381974248927039,
+          "test_precision": 0.688,
+          "test_recall": 0.7962962962962963
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.9142505350475054,
+          "cv_auprc_std": 0.020988877991413725,
+          "cv_auroc_mean": 0.9577445152319504,
+          "cv_auroc_se": 0.002064369199827605,
+          "cv_auroc_std": 0.010321845999138025,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8245859093527159,
+          "test_auroc": 0.9190672153635117,
+          "test_f1": 0.8075117370892019,
+          "test_precision": 0.819047619047619,
+          "test_recall": 0.7962962962962963
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.9273979881768356,
+          "cv_auprc_std": 0.019136093434417096,
+          "cv_auroc_mean": 0.9634721138681932,
+          "cv_auroc_se": 0.0018770405719964246,
+          "cv_auroc_std": 0.009385202859982122,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8468830992688814,
+          "test_auroc": 0.9334705075445816,
+          "test_f1": 0.8075117370892019,
+          "test_precision": 0.819047619047619,
+          "test_recall": 0.7962962962962963
+        }
+      },
+      "seed": 2,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.8959572911262512
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.8977670669555664
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9768339991569519
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.0018015862442553043
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 96,
+        "features": "GO freq (90) + Jaccard (4) + Size (2) = 96",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 90,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2295,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.17275619783214943,
+          "real_pathway_jaccard_p25": 0.12069256962547767
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8352601136794702,
+          "cv_auprc_std": 0.033037375332090814,
+          "cv_auroc_mean": 0.9039329170670092,
+          "cv_auroc_se": 0.0036941208148425163,
+          "cv_auroc_std": 0.018470604074212582,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8612439135959905,
+          "test_auroc": 0.9258401920438958,
+          "test_f1": 0.7829787234042553,
+          "test_precision": 0.7244094488188977,
+          "test_recall": 0.8518518518518519
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8646967144605938,
+          "cv_auprc_std": 0.02994414228832814,
+          "cv_auroc_mean": 0.9367690066501495,
+          "cv_auroc_se": 0.0024213257606375315,
+          "cv_auroc_std": 0.012106628803187656,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.895050586806605,
+          "test_auroc": 0.9495027434842249,
+          "test_f1": 0.8355555555555556,
+          "test_precision": 0.8034188034188035,
+          "test_recall": 0.8703703703703703
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.893551604864457,
+          "cv_auprc_std": 0.03413367686885341,
+          "cv_auroc_mean": 0.9496583557494569,
+          "cv_auroc_se": 0.0024929474226278838,
+          "cv_auroc_std": 0.01246473711313942,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.919400990241716,
+          "test_auroc": 0.9561899862825789,
+          "test_f1": 0.8256880733944955,
+          "test_precision": 0.8181818181818182,
+          "test_recall": 0.8333333333333334
+        }
+      },
+      "seed": 3,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9595334529876709
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9207770824432373
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9237782955169678
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.003112159203737974
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 82,
+        "features": "GO freq (76) + Jaccard (4) + Size (2) = 82",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 76,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2358,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.17626363054934482,
+          "real_pathway_jaccard_p25": 0.12194232324733272
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8455083227378611,
+          "cv_auprc_std": 0.026704754246976287,
+          "cv_auroc_mean": 0.9144342733893512,
+          "cv_auroc_se": 0.00326223696836491,
+          "cv_auroc_std": 0.01631118484182455,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8932047228980519,
+          "test_auroc": 0.9345850480109739,
+          "test_f1": 0.8290598290598291,
+          "test_precision": 0.7698412698412699,
+          "test_recall": 0.8981481481481481
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8833220349727654,
+          "cv_auprc_std": 0.030442593186015627,
+          "cv_auroc_mean": 0.945030542810295,
+          "cv_auroc_se": 0.00274621125045509,
+          "cv_auroc_std": 0.01373105625227545,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.91094223511755,
+          "test_auroc": 0.9496742112482853,
+          "test_f1": 0.8251121076233184,
+          "test_precision": 0.8,
+          "test_recall": 0.8518518518518519
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.8906705818010859,
+          "cv_auprc_std": 0.0271199001137789,
+          "cv_auroc_mean": 0.9516337483024635,
+          "cv_auroc_se": 0.0021869008497440133,
+          "cv_auroc_std": 0.010934504248720067,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.9333299788759997,
+          "test_auroc": 0.964891975308642,
+          "test_f1": 0.8416289592760181,
+          "test_precision": 0.8230088495575221,
+          "test_recall": 0.8611111111111112
+        }
+      },
+      "seed": 4,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.8323959708213806
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9044135808944702
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.8988752961158752
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.0012950795935466886
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 154,
+        "features": "GO freq (148) + Jaccard (4) + Size (2) = 154",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 148,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2115,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.17889249639249638,
+          "real_pathway_jaccard_p25": 0.12210613434230595
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8408332513838824,
+          "cv_auprc_std": 0.032118505037070776,
+          "cv_auroc_mean": 0.8979774930730378,
+          "cv_auroc_se": 0.0055843161047351205,
+          "cv_auroc_std": 0.0279215805236756,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8452370015658568,
+          "test_auroc": 0.9155521262002744,
+          "test_f1": 0.8071748878923767,
+          "test_precision": 0.782608695652174,
+          "test_recall": 0.8333333333333334
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8787959559759476,
+          "cv_auprc_std": 0.030778004275553408,
+          "cv_auroc_mean": 0.9430600785165304,
+          "cv_auroc_se": 0.0025597723230212834,
+          "cv_auroc_std": 0.012798861615106417,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8738966906041458,
+          "test_auroc": 0.9386574074074074,
+          "test_f1": 0.8068669527896996,
+          "test_precision": 0.752,
+          "test_recall": 0.8703703703703703
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.9038758057026076,
+          "cv_auprc_std": 0.024645130404092126,
+          "cv_auroc_mean": 0.9506453303045828,
+          "cv_auroc_se": 0.0024724926517811123,
+          "cv_auroc_std": 0.01236246325890556,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8915169928040012,
+          "test_auroc": 0.9513888888888888,
+          "test_f1": 0.8384279475982532,
+          "test_precision": 0.7933884297520661,
+          "test_recall": 0.8888888888888888
+        }
+      },
+      "seed": 5,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.7697492241859436
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.8345531821250916
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9911909699440002
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.0012549763778224587
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 158,
+        "features": "GO freq (152) + Jaccard (4) + Size (2) = 158",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 152,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2065,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.1773312175550804,
+          "real_pathway_jaccard_p25": 0.1204758440156738
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.824444834036091,
+          "cv_auprc_std": 0.04297000162100307,
+          "cv_auroc_mean": 0.8988173837939648,
+          "cv_auroc_se": 0.004277954220434922,
+          "cv_auroc_std": 0.021389771102174607,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8178242361866016,
+          "test_auroc": 0.885588134430727,
+          "test_f1": 0.72,
+          "test_precision": 0.6923076923076923,
+          "test_recall": 0.75
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8854043334104164,
+          "cv_auprc_std": 0.028994070731584422,
+          "cv_auroc_mean": 0.94477905983187,
+          "cv_auroc_se": 0.0025544350140223816,
+          "cv_auroc_std": 0.012772175070111908,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8590140768995186,
+          "test_auroc": 0.9352280521262003,
+          "test_f1": 0.7982456140350878,
+          "test_precision": 0.7583333333333333,
+          "test_recall": 0.8425925925925926
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.9119977211059226,
+          "cv_auprc_std": 0.02236456673011798,
+          "cv_auroc_mean": 0.9561442512439856,
+          "cv_auroc_se": 0.002069873399020046,
+          "cv_auroc_std": 0.01034936699510023,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8875387406690576,
+          "test_auroc": 0.948602537722908,
+          "test_f1": 0.8348623853211009,
+          "test_precision": 0.8272727272727273,
+          "test_recall": 0.8425925925925926
+        }
+      },
+      "seed": 6,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.666212260723114
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.885376513004303
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9699333310127258
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.002638596808537841
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 160,
+        "features": "GO freq (154) + Jaccard (4) + Size (2) = 160",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 154,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2013,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.17547546041700246,
+          "real_pathway_jaccard_p25": 0.12068141457551115
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8052664213232184,
+          "cv_auprc_std": 0.03275497759403173,
+          "cv_auroc_mean": 0.8861056629561527,
+          "cv_auroc_se": 0.004441261982684242,
+          "cv_auroc_std": 0.02220630991342121,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8504010047181112,
+          "test_auroc": 0.923568244170096,
+          "test_f1": 0.8281938325991189,
+          "test_precision": 0.7899159663865546,
+          "test_recall": 0.8703703703703703
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8555352993696832,
+          "cv_auprc_std": 0.03585898502484735,
+          "cv_auroc_mean": 0.9360996904736983,
+          "cv_auroc_se": 0.003056821974160012,
+          "cv_auroc_std": 0.015284109870800061,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.906920293844772,
+          "test_auroc": 0.9556327160493828,
+          "test_f1": 0.8506787330316742,
+          "test_precision": 0.831858407079646,
+          "test_recall": 0.8703703703703703
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.8802564063677607,
+          "cv_auprc_std": 0.036562062372466786,
+          "cv_auroc_mean": 0.9462253589283725,
+          "cv_auroc_se": 0.002858722571661116,
+          "cv_auroc_std": 0.01429361285830558,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.9349655300726618,
+          "test_auroc": 0.9650205761316872,
+          "test_f1": 0.8636363636363636,
+          "test_precision": 0.8482142857142857,
+          "test_recall": 0.8796296296296297
+        }
+      },
+      "seed": 7,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9828548431396484
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.6990633606910706
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9929088354110718
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.002494046464562416
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 60,
+        "features": "GO freq (54) + Jaccard (4) + Size (2) = 60",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 54,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2139,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.17634545290345918,
+          "real_pathway_jaccard_p25": 0.11929886616046549
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8721725099873647,
+          "cv_auprc_std": 0.02566780258740585,
+          "cv_auroc_mean": 0.9239165558931255,
+          "cv_auroc_se": 0.0032085083922193747,
+          "cv_auroc_std": 0.016042541961096873,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.886412006568851,
+          "test_auroc": 0.942858367626886,
+          "test_f1": 0.8017241379310345,
+          "test_precision": 0.75,
+          "test_recall": 0.8611111111111112
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8815174481767326,
+          "cv_auprc_std": 0.03031234682561577,
+          "cv_auroc_mean": 0.9427342873422719,
+          "cv_auroc_se": 0.003077515413263949,
+          "cv_auroc_std": 0.015387577066319744,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.930107857902019,
+          "test_auroc": 0.9628343621399177,
+          "test_f1": 0.8571428571428571,
+          "test_precision": 0.8275862068965517,
+          "test_recall": 0.8888888888888888
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.9149246587581596,
+          "cv_auprc_std": 0.02568090361437933,
+          "cv_auroc_mean": 0.9552085020179633,
+          "cv_auroc_se": 0.002617184655703905,
+          "cv_auroc_std": 0.013085923278519526,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.9395967749217334,
+          "test_auroc": 0.9717935528120714,
+          "test_f1": 0.8609865470852018,
+          "test_precision": 0.8347826086956521,
+          "test_recall": 0.8888888888888888
+        }
+      },
+      "seed": 8,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.7716012597084045
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9184360504150391
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9907214641571045
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.0019279812695458531
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 81,
+        "features": "GO freq (75) + Jaccard (4) + Size (2) = 81",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 75,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 1641,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.1766450014559066,
+          "real_pathway_jaccard_p25": 0.11568303132511083
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8501606734197396,
+          "cv_auprc_std": 0.031108729884011223,
+          "cv_auroc_mean": 0.9144113024550135,
+          "cv_auroc_se": 0.0035143772208007886,
+          "cv_auroc_std": 0.017571886104003943,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8835000054186044,
+          "test_auroc": 0.92309670781893,
+          "test_f1": 0.7739130434782608,
+          "test_precision": 0.7295081967213115,
+          "test_recall": 0.8240740740740741
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8848516037122296,
+          "cv_auprc_std": 0.028212817874871877,
+          "cv_auroc_mean": 0.9424216019598626,
+          "cv_auroc_se": 0.0026104338749474002,
+          "cv_auroc_std": 0.013052169374737,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.9394727765784519,
+          "test_auroc": 0.9646347736625513,
+          "test_f1": 0.8672566371681416,
+          "test_precision": 0.8305084745762712,
+          "test_recall": 0.9074074074074074
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.9100024737937727,
+          "cv_auprc_std": 0.02569972960589058,
+          "cv_auroc_mean": 0.9525148856606127,
+          "cv_auroc_se": 0.0024830809396780827,
+          "cv_auroc_std": 0.012415404698390413,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.9308283212843893,
+          "test_auroc": 0.9606910150891632,
+          "test_f1": 0.852017937219731,
+          "test_precision": 0.8260869565217391,
+          "test_recall": 0.8796296296296297
+        }
+      },
+      "seed": 9,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9251264333724976
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.8972706198692322
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.8778444528579712
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.0005813805619254708
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 163,
+        "features": "GO freq (157) + Jaccard (4) + Size (2) = 163",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 157,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2158,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.17903460206739824,
+          "real_pathway_jaccard_p25": 0.11978989266322848
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8441174850994885,
+          "cv_auprc_std": 0.03050136407381617,
+          "cv_auroc_mean": 0.9082420520186296,
+          "cv_auroc_se": 0.0033269158805052427,
+          "cv_auroc_std": 0.016634579402526214,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8814725521483906,
+          "test_auroc": 0.9304698216735253,
+          "test_f1": 0.7894736842105263,
+          "test_precision": 0.75,
+          "test_recall": 0.8333333333333334
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8825157631893681,
+          "cv_auprc_std": 0.03292991879322069,
+          "cv_auroc_mean": 0.9444117040102233,
+          "cv_auroc_se": 0.0021416884370629883,
+          "cv_auroc_std": 0.01070844218531494,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8715264828771458,
+          "test_auroc": 0.9351423182441703,
+          "test_f1": 0.8,
+          "test_precision": 0.7857142857142857,
+          "test_recall": 0.8148148148148148
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.9115181826949634,
+          "cv_auprc_std": 0.02677567393075303,
+          "cv_auroc_mean": 0.9579516977772238,
+          "cv_auroc_se": 0.0018891459654784407,
+          "cv_auroc_std": 0.009445729827392203,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.9058243046232414,
+          "test_auroc": 0.9564043209876543,
+          "test_f1": 0.8506787330316742,
+          "test_precision": 0.831858407079646,
+          "test_recall": 0.8703703703703703
+        }
+      },
+      "seed": 10,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9711177945137024
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9207711219787598
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9618624448776245
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.0017489983001723886
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 89,
+        "features": "GO freq (83) + Jaccard (4) + Size (2) = 89",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 83,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2307,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.17889249639249638,
+          "real_pathway_jaccard_p25": 0.1186246441328625
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8655700587420314,
+          "cv_auprc_std": 0.02567089660979932,
+          "cv_auroc_mean": 0.9203211214554847,
+          "cv_auroc_se": 0.0031081920368526287,
+          "cv_auroc_std": 0.015540960184263142,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8689183970677966,
+          "test_auroc": 0.9346707818930041,
+          "test_f1": 0.7983193277310925,
+          "test_precision": 0.7307692307692307,
+          "test_recall": 0.8796296296296297
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8953700256011969,
+          "cv_auprc_std": 0.023600001994529607,
+          "cv_auroc_mean": 0.9468427161963369,
+          "cv_auroc_se": 0.0024967969100639794,
+          "cv_auroc_std": 0.012483984550319897,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8852756982137706,
+          "test_auroc": 0.9472307956104252,
+          "test_f1": 0.8281938325991189,
+          "test_precision": 0.7899159663865546,
+          "test_recall": 0.8703703703703703
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.9117787961014792,
+          "cv_auprc_std": 0.01985944080040484,
+          "cv_auroc_mean": 0.9553761620082488,
+          "cv_auroc_se": 0.00203304360223452,
+          "cv_auroc_std": 0.010165218011172601,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8891008932378444,
+          "test_auroc": 0.9532321673525377,
+          "test_f1": 0.8256880733944955,
+          "test_precision": 0.8181818181818182,
+          "test_recall": 0.8333333333333334
+        }
+      },
+      "seed": 11,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9715791940689087
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.7972851395606995
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.990778923034668
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.001714162528514862
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 155,
+        "features": "GO freq (149) + Jaccard (4) + Size (2) = 155",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 149,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2402,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.17559770284925566,
+          "real_pathway_jaccard_p25": 0.11995181238285826
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8478473672123062,
+          "cv_auprc_std": 0.032676025218143286,
+          "cv_auroc_mean": 0.9108427161604036,
+          "cv_auroc_se": 0.0034665827301432533,
+          "cv_auroc_std": 0.017332913650716267,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8150497326111518,
+          "test_auroc": 0.8799296982167352,
+          "test_f1": 0.7330316742081447,
+          "test_precision": 0.7168141592920354,
+          "test_recall": 0.75
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8929917054590475,
+          "cv_auprc_std": 0.02370872858242667,
+          "cv_auroc_mean": 0.946165430721054,
+          "cv_auroc_se": 0.002125921170102294,
+          "cv_auroc_std": 0.01062960585051147,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8907438391227738,
+          "test_auroc": 0.9334705075445816,
+          "test_f1": 0.8,
+          "test_precision": 0.7692307692307693,
+          "test_recall": 0.8333333333333334
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.9201881579321183,
+          "cv_auprc_std": 0.019396524539909307,
+          "cv_auroc_mean": 0.9573870173661219,
+          "cv_auroc_se": 0.0021370775017904185,
+          "cv_auroc_std": 0.010685387508952092,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.9122295689983135,
+          "test_auroc": 0.9497599451303155,
+          "test_f1": 0.8090909090909091,
+          "test_precision": 0.7946428571428571,
+          "test_recall": 0.8240740740740741
+        }
+      },
+      "seed": 12,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9410557746887207
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.5306199789047241
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9307357668876648
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.0006548351375386119
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 77,
+        "features": "GO freq (71) + Jaccard (4) + Size (2) = 77",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 71,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2525,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.1773312175550804,
+          "real_pathway_jaccard_p25": 0.12300583226684847
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8467357946364777,
+          "cv_auprc_std": 0.034834636229833335,
+          "cv_auroc_mean": 0.9170724120647092,
+          "cv_auroc_se": 0.0027421059297225397,
+          "cv_auroc_std": 0.013710529648612699,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.9023775120717298,
+          "test_auroc": 0.9453017832647462,
+          "test_f1": 0.8311688311688312,
+          "test_precision": 0.7804878048780488,
+          "test_recall": 0.8888888888888888
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8725388756534963,
+          "cv_auprc_std": 0.027834281904106212,
+          "cv_auroc_mean": 0.94242385498104,
+          "cv_auroc_se": 0.0022874834209621886,
+          "cv_auroc_std": 0.011437417104810943,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.9080442784437326,
+          "test_auroc": 0.9573473936899863,
+          "test_f1": 0.8421052631578947,
+          "test_precision": 0.8,
+          "test_recall": 0.8888888888888888
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.9042225796195449,
+          "cv_auprc_std": 0.021839207857866198,
+          "cv_auroc_mean": 0.9552505057709143,
+          "cv_auroc_se": 0.001866833629914268,
+          "cv_auroc_std": 0.00933416814957134,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.9191401115807901,
+          "test_auroc": 0.9678069272976682,
+          "test_f1": 0.8918918918918919,
+          "test_precision": 0.868421052631579,
+          "test_recall": 0.9166666666666666
+        }
+      },
+      "seed": 13,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9022988080978394
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9466744065284729
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.977013885974884
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.0012393260840326548
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 79,
+        "features": "GO freq (73) + Jaccard (4) + Size (2) = 79",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 73,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2285,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.1755877328993664,
+          "real_pathway_jaccard_p25": 0.11913500637240132
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8437236073495611,
+          "cv_auprc_std": 0.028900495109766205,
+          "cv_auroc_mean": 0.91171971561339,
+          "cv_auroc_se": 0.0029186445986023745,
+          "cv_auroc_std": 0.014593222993011872,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8405175283951851,
+          "test_auroc": 0.9272976680384089,
+          "test_f1": 0.7574468085106383,
+          "test_precision": 0.7007874015748031,
+          "test_recall": 0.8240740740740741
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8830461365853091,
+          "cv_auprc_std": 0.024436798485058867,
+          "cv_auroc_mean": 0.9421376429567988,
+          "cv_auroc_se": 0.0022965261089457124,
+          "cv_auroc_std": 0.011482630544728561,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8946112651255429,
+          "test_auroc": 0.9516032235939643,
+          "test_f1": 0.8230088495575221,
+          "test_precision": 0.788135593220339,
+          "test_recall": 0.8611111111111112
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.9085256617320709,
+          "cv_auprc_std": 0.01854588087896296,
+          "cv_auroc_mean": 0.951636620275631,
+          "cv_auroc_se": 0.002048105010882522,
+          "cv_auroc_std": 0.01024052505441261,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8867274694461307,
+          "test_auroc": 0.9453017832647462,
+          "test_f1": 0.7929515418502202,
+          "test_precision": 0.7563025210084033,
+          "test_recall": 0.8333333333333334
+        }
+      },
+      "seed": 14,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.8266615867614746
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.8882173299789429
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9321977496147156
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.0020526396110653877
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 88,
+        "features": "GO freq (82) + Jaccard (4) + Size (2) = 88",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 82,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2232,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.17889249639249638,
+          "real_pathway_jaccard_p25": 0.12133489559545568
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8446366126610065,
+          "cv_auprc_std": 0.028326927205784034,
+          "cv_auroc_mean": 0.9038899535342231,
+          "cv_auroc_se": 0.003131170429546474,
+          "cv_auroc_std": 0.01565585214773237,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.7856652601220432,
+          "test_auroc": 0.8949331275720165,
+          "test_f1": 0.7574468085106383,
+          "test_precision": 0.7007874015748031,
+          "test_recall": 0.8240740740740741
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8554662267121712,
+          "cv_auprc_std": 0.03499651953631884,
+          "cv_auroc_mean": 0.9341409792607424,
+          "cv_auroc_se": 0.0025166695194148024,
+          "cv_auroc_std": 0.012583347597074012,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8367423891136373,
+          "test_auroc": 0.9332990397805212,
+          "test_f1": 0.7931034482758621,
+          "test_precision": 0.7419354838709677,
+          "test_recall": 0.8518518518518519
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.8869166931401748,
+          "cv_auprc_std": 0.02968722678195016,
+          "cv_auroc_mean": 0.9456420131171828,
+          "cv_auroc_se": 0.0022932032681633,
+          "cv_auroc_std": 0.011466016340816499,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8986734378985095,
+          "test_auroc": 0.9496742112482854,
+          "test_f1": 0.8177777777777778,
+          "test_precision": 0.7863247863247863,
+          "test_recall": 0.8518518518518519
+        }
+      },
+      "seed": 15,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.95169997215271
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.34965237975120544
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.925807774066925
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.0033646258525550365
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 91,
+        "features": "GO freq (85) + Jaccard (4) + Size (2) = 91",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 85,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2299,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.18106614521988026,
+          "real_pathway_jaccard_p25": 0.11899502730385084
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8264459212070459,
+          "cv_auprc_std": 0.038975788795649335,
+          "cv_auroc_mean": 0.9050369227769626,
+          "cv_auroc_se": 0.004447091700749648,
+          "cv_auroc_std": 0.02223545850374824,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8887486948640689,
+          "test_auroc": 0.9329561042524004,
+          "test_f1": 0.8198198198198198,
+          "test_precision": 0.7982456140350878,
+          "test_recall": 0.8425925925925926
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.857263565829376,
+          "cv_auprc_std": 0.035122148387288506,
+          "cv_auroc_mean": 0.9328927530657528,
+          "cv_auroc_se": 0.0031584808560060447,
+          "cv_auroc_std": 0.015792404280030224,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.90457614268718,
+          "test_auroc": 0.9523319615912209,
+          "test_f1": 0.8303571428571429,
+          "test_precision": 0.8017241379310345,
+          "test_recall": 0.8611111111111112
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.8782226203710565,
+          "cv_auprc_std": 0.030330648985750684,
+          "cv_auroc_mean": 0.9416457378247293,
+          "cv_auroc_se": 0.003103749180774283,
+          "cv_auroc_std": 0.015518745903871414,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.913074273479337,
+          "test_auroc": 0.9618484224965707,
+          "test_f1": 0.8421052631578947,
+          "test_precision": 0.8,
+          "test_recall": 0.8888888888888888
+        }
+      },
+      "seed": 16,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.64536052942276
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.7533237934112549
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9343570470809937
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.000921026396099478
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 158,
+        "features": "GO freq (152) + Jaccard (4) + Size (2) = 158",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 152,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2394,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.1773312175550804,
+          "real_pathway_jaccard_p25": 0.11945119060554614
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8178681835265715,
+          "cv_auprc_std": 0.05032165210607995,
+          "cv_auroc_mean": 0.8945542749747307,
+          "cv_auroc_se": 0.0054279724944422125,
+          "cv_auroc_std": 0.027139862472211063,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8777545911336823,
+          "test_auroc": 0.9317129629629629,
+          "test_f1": 0.7692307692307693,
+          "test_precision": 0.7522123893805309,
+          "test_recall": 0.7870370370370371
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8702205418524247,
+          "cv_auprc_std": 0.045883167227723655,
+          "cv_auroc_mean": 0.939199297833553,
+          "cv_auroc_se": 0.0033560560919079782,
+          "cv_auroc_std": 0.01678028045953989,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8610288836128117,
+          "test_auroc": 0.9446587791495199,
+          "test_f1": 0.8165137614678899,
+          "test_precision": 0.8090909090909091,
+          "test_recall": 0.8240740740740741
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.9064428107428693,
+          "cv_auprc_std": 0.0328243647686602,
+          "cv_auroc_mean": 0.9555985493921352,
+          "cv_auroc_se": 0.0026014025739568044,
+          "cv_auroc_std": 0.013007012869784023,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.9079960865730601,
+          "test_auroc": 0.954303840877915,
+          "test_f1": 0.8545454545454545,
+          "test_precision": 0.8392857142857143,
+          "test_recall": 0.8703703703703703
+        }
+      },
+      "seed": 17,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.8191964626312256
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9184444546699524
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9738008975982666
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.0006388162728399038
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 85,
+        "features": "GO freq (79) + Jaccard (4) + Size (2) = 85",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 79,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 1980,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.17559770284925566,
+          "real_pathway_jaccard_p25": 0.11873494424965014
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8510346505173682,
+          "cv_auprc_std": 0.03463382093987975,
+          "cv_auroc_mean": 0.9199987985683723,
+          "cv_auroc_se": 0.003705919862593257,
+          "cv_auroc_std": 0.018529599312966286,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.7992220514007073,
+          "test_auroc": 0.8781292866941015,
+          "test_f1": 0.7467811158798283,
+          "test_precision": 0.696,
+          "test_recall": 0.8055555555555556
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8904501741722685,
+          "cv_auprc_std": 0.031474085852217934,
+          "cv_auroc_mean": 0.9472864929152546,
+          "cv_auroc_se": 0.002771251076107264,
+          "cv_auroc_std": 0.013856255380536319,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8520772123725779,
+          "test_auroc": 0.928883744855967,
+          "test_f1": 0.8205128205128205,
+          "test_precision": 0.7619047619047619,
+          "test_recall": 0.8888888888888888
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.9102756176488527,
+          "cv_auprc_std": 0.02867349341567955,
+          "cv_auroc_mean": 0.9570752601421977,
+          "cv_auroc_se": 0.002575418658432761,
+          "cv_auroc_std": 0.012877093292163804,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8747987660317919,
+          "test_auroc": 0.9338563100137174,
+          "test_f1": 0.8154506437768241,
+          "test_precision": 0.76,
+          "test_recall": 0.8796296296296297
+        }
+      },
+      "seed": 18,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9238748550415039
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.8108088970184326
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.993720531463623
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.009281793609261513
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 157,
+        "features": "GO freq (151) + Jaccard (4) + Size (2) = 157",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 151,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2033,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.17547546041700246,
+          "real_pathway_jaccard_p25": 0.11877374738823396
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8178371128531622,
+          "cv_auprc_std": 0.029574201262800175,
+          "cv_auroc_mean": 0.8965734399202797,
+          "cv_auroc_se": 0.0032236149196064766,
+          "cv_auroc_std": 0.016118074598032384,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8590648822615252,
+          "test_auroc": 0.920224622770919,
+          "test_f1": 0.7931034482758621,
+          "test_precision": 0.7419354838709677,
+          "test_recall": 0.8518518518518519
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8679509076051555,
+          "cv_auprc_std": 0.03478273843190845,
+          "cv_auroc_mean": 0.9421026799848606,
+          "cv_auroc_se": 0.002504123268170581,
+          "cv_auroc_std": 0.012520616340852905,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8843904309632538,
+          "test_auroc": 0.937457133058985,
+          "test_f1": 0.832579185520362,
+          "test_precision": 0.8141592920353983,
+          "test_recall": 0.8518518518518519
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.9057444336266532,
+          "cv_auprc_std": 0.02545512180237729,
+          "cv_auroc_mean": 0.9542269853796891,
+          "cv_auroc_se": 0.00236974519637509,
+          "cv_auroc_std": 0.01184872598187545,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.9191640191408431,
+          "test_auroc": 0.9537465706447188,
+          "test_f1": 0.8378378378378378,
+          "test_precision": 0.8157894736842105,
+          "test_recall": 0.8611111111111112
+        }
+      },
+      "seed": 19,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    },
+    {
+      "candidate_seed": 42,
+      "candidates": [
+        {
+          "best_ora_p_adj": 1.187532720848621e-11,
+          "candidate": "C1",
+          "closest_by_jaccard": "glutathione-peroxide redox reactions",
+          "closest_by_overlap": "Glutathione metabolism",
+          "max_jaccard": 0.21739130434782608,
+          "max_overlap_fraction": 0.4117647058823529,
+          "n": 17,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9604352712631226
+        },
+        {
+          "best_ora_p_adj": 2.1734355446356876e-26,
+          "candidate": "C2",
+          "closest_by_jaccard": "Photosynthesis",
+          "closest_by_overlap": "Photosynthesis",
+          "max_jaccard": 0.14285714285714285,
+          "max_overlap_fraction": 1.0,
+          "n": 11,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.7824351787567139
+        },
+        {
+          "best_ora_p_adj": 2.0794218670325666e-29,
+          "candidate": "C3",
+          "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+          "closest_by_overlap": "Ubiquitin mediated proteolysis",
+          "max_jaccard": 0.08588957055214724,
+          "max_overlap_fraction": 1.0,
+          "n": 14,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.9627681970596313
+        },
+        {
+          "best_ora_p_adj": 7.861010511613847e-07,
+          "candidate": "C4",
+          "closest_by_jaccard": "starch biosynthesis",
+          "closest_by_overlap": "Starch and sucrose metabolism",
+          "max_jaccard": 0.03571428571428571,
+          "max_overlap_fraction": 0.5555555555555556,
+          "n": 9,
+          "novel": false,
+          "ora_significant": true,
+          "score": 0.0021626348607242107
+        }
+      ],
+      "cv": {
+        "folds": 25,
+        "repeats": 5,
+        "splits": 5
+      },
+      "dataset": {
+        "D": 85,
+        "features": "GO freq (79) + Jaccard (4) + Size (2) = 85",
+        "n_aracyc": 383,
+        "n_genes": 27435,
+        "n_go_filtered": 790,
+        "n_go_selected": 79,
+        "n_kegg": 156,
+        "n_pathways": 539,
+        "negatives": {
+          "jaccard_matched_attempts": 2150,
+          "n_neg": 1078,
+          "n_pos": 539,
+          "negative_counts": {
+            "chimera": 269,
+            "co_annotation": 269,
+            "jaccard_matched": 269,
+            "shuffled": 271
+          },
+          "real_pathway_jaccard_median": 0.1773312175550804,
+          "real_pathway_jaccard_p25": 0.11890118037872174
+        }
+      },
+      "generated_by": "run_no_embedding_reproducible.py",
+      "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+      "performance": {
+        "Logistic Regression": {
+          "cv_auprc_mean": 0.8519865011628238,
+          "cv_auprc_std": 0.02922038317976213,
+          "cv_auroc_mean": 0.9154402786070897,
+          "cv_auroc_se": 0.003784722806598895,
+          "cv_auroc_std": 0.018923614032994474,
+          "model": "Logistic Regression",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8872196218693215,
+          "test_auroc": 0.9350565843621399,
+          "test_f1": 0.7851239669421488,
+          "test_precision": 0.7089552238805971,
+          "test_recall": 0.8796296296296297
+        },
+        "Random Forest": {
+          "cv_auprc_mean": 0.8983677760977664,
+          "cv_auprc_std": 0.018069040285100577,
+          "cv_auroc_mean": 0.9499765922957671,
+          "cv_auroc_se": 0.0017447444549589374,
+          "cv_auroc_std": 0.008723722274794687,
+          "model": "Random Forest",
+          "n_cv_folds": 25,
+          "test_auprc": 0.8949623106022688,
+          "test_auroc": 0.9487740054869684,
+          "test_f1": 0.8173913043478261,
+          "test_precision": 0.7704918032786885,
+          "test_recall": 0.8703703703703703
+        },
+        "XGBoost": {
+          "cv_auprc_mean": 0.9214095802649293,
+          "cv_auprc_std": 0.018714928738959156,
+          "cv_auroc_mean": 0.9600099750985462,
+          "cv_auroc_se": 0.0018791400382078976,
+          "cv_auroc_std": 0.009395700191039488,
+          "model": "XGBoost",
+          "n_cv_folds": 25,
+          "test_auprc": 0.9310305153555465,
+          "test_auroc": 0.9657493141289437,
+          "test_f1": 0.8508771929824561,
+          "test_precision": 0.8083333333333333,
+          "test_recall": 0.8981481481481481
+        }
+      },
+      "seed": 20,
+      "split": {
+        "feature_selection": "GO terms selected on training split only",
+        "n_test": 324,
+        "n_train": 1293
+      }
+    }
+  ],
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "summary": [
+    {
+      "D_max": 163.0,
+      "D_mean": 112.6,
+      "D_min": 60.0,
+      "D_sd": 38.95260277770787,
+      "D_se": 8.710066771150192,
+      "cv_auprc_mean_max": 0.9273979881768356,
+      "cv_auprc_mean_mean": 0.9049376719273434,
+      "cv_auprc_mean_min": 0.8782226203710565,
+      "cv_auprc_mean_sd": 0.013213432381812757,
+      "cv_auprc_mean_se": 0.002954613302183028,
+      "cv_auroc_mean_max": 0.9634721138681932,
+      "cv_auroc_mean_mean": 0.953338347976354,
+      "cv_auroc_mean_min": 0.9416457378247293,
+      "cv_auroc_mean_sd": 0.00519489578443557,
+      "cv_auroc_mean_se": 0.0011616140110025028,
+      "model": "XGBoost",
+      "n_go_selected_max": 157.0,
+      "n_go_selected_mean": 106.6,
+      "n_go_selected_min": 54.0,
+      "n_go_selected_sd": 38.95260277770787,
+      "n_go_selected_se": 8.710066771150192,
+      "n_runs": 20,
+      "test_auprc_max": 0.9395967749217334,
+      "test_auprc_mean": 0.9089192080104095,
+      "test_auprc_min": 0.8468830992688814,
+      "test_auprc_sd": 0.02413708996954322,
+      "test_auprc_se": 0.005397217395092697,
+      "test_auroc_max": 0.9717935528120714,
+      "test_auroc_mean": 0.9552297668038408,
+      "test_auroc_min": 0.9334705075445816,
+      "test_auroc_sd": 0.010248086185094069,
+      "test_auroc_se": 0.0022915417349146827,
+      "test_f1_max": 0.8918918918918919,
+      "test_f1_mean": 0.8387383190534458,
+      "test_f1_min": 0.7929515418502202,
+      "test_f1_sd": 0.023469215394842924,
+      "test_f1_se": 0.005247876100145334,
+      "test_precision_max": 0.868421052631579,
+      "test_precision_mean": 0.8165117184763444,
+      "test_precision_min": 0.7563025210084033,
+      "test_precision_sd": 0.02912892927919668,
+      "test_precision_se": 0.006513426598006773,
+      "test_recall_max": 0.9166666666666666,
+      "test_recall_mean": 0.8629629629629629,
+      "test_recall_min": 0.7962962962962963,
+      "test_recall_sd": 0.02921864084171873,
+      "test_recall_se": 0.006533486713223475
+    },
+    {
+      "D_max": 163.0,
+      "D_mean": 112.6,
+      "D_min": 60.0,
+      "D_sd": 38.95260277770787,
+      "D_se": 8.710066771150192,
+      "cv_auprc_mean_max": 0.9142505350475054,
+      "cv_auprc_mean_mean": 0.879416625278326,
+      "cv_auprc_mean_min": 0.8554662267121712,
+      "cv_auprc_mean_sd": 0.01519663198067727,
+      "cv_auprc_mean_se": 0.0033980702137841644,
+      "cv_auroc_mean_max": 0.9577445152319504,
+      "cv_auroc_mean_mean": 0.9426264396293271,
+      "cv_auroc_mean_min": 0.9328927530657528,
+      "cv_auroc_mean_sd": 0.005823252605201329,
+      "cv_auroc_mean_se": 0.0013021188675382918,
+      "model": "Random Forest",
+      "n_go_selected_max": 157.0,
+      "n_go_selected_mean": 106.6,
+      "n_go_selected_min": 54.0,
+      "n_go_selected_sd": 38.95260277770787,
+      "n_go_selected_se": 8.710066771150192,
+      "n_runs": 20,
+      "test_auprc_max": 0.9394727765784519,
+      "test_auprc_mean": 0.8864683882156548,
+      "test_auprc_min": 0.8245859093527159,
+      "test_auprc_sd": 0.029367082809055485,
+      "test_auprc_se": 0.006566679346191354,
+      "test_auroc_max": 0.9646347736625513,
+      "test_auroc_mean": 0.9450167181069957,
+      "test_auroc_min": 0.9190672153635117,
+      "test_auroc_sd": 0.011960190096096042,
+      "test_auroc_se": 0.002674379807869049,
+      "test_f1_max": 0.8672566371681416,
+      "test_f1_mean": 0.8237832607248341,
+      "test_f1_min": 0.7931034482758621,
+      "test_f1_sd": 0.020161121188260876,
+      "test_f1_se": 0.004508163747956265,
+      "test_precision_max": 0.831858407079646,
+      "test_precision_mean": 0.7930182790764604,
+      "test_precision_min": 0.7419354838709677,
+      "test_precision_sd": 0.02670254331721588,
+      "test_precision_se": 0.005970870202942744,
+      "test_recall_max": 0.9074074074074074,
+      "test_recall_mean": 0.8578703703703704,
+      "test_recall_min": 0.7962962962962963,
+      "test_recall_sd": 0.027248863122654298,
+      "test_recall_se": 0.00609303102518422
+    },
+    {
+      "D_max": 163.0,
+      "D_mean": 112.6,
+      "D_min": 60.0,
+      "D_sd": 38.95260277770787,
+      "D_se": 8.710066771150192,
+      "cv_auprc_mean_max": 0.8760221852784161,
+      "cv_auprc_mean_mean": 0.841307697152821,
+      "cv_auprc_mean_min": 0.8052664213232184,
+      "cv_auprc_mean_sd": 0.018639653191841903,
+      "cv_auprc_mean_se": 0.004167953161397942,
+      "cv_auroc_mean_max": 0.9307923994061079,
+      "cv_auroc_mean_mean": 0.9084719793786397,
+      "cv_auroc_mean_min": 0.8861056629561527,
+      "cv_auroc_mean_sd": 0.011433503970243144,
+      "cv_auroc_mean_se": 0.00255660920984774,
+      "model": "Logistic Regression",
+      "n_go_selected_max": 157.0,
+      "n_go_selected_mean": 106.6,
+      "n_go_selected_min": 54.0,
+      "n_go_selected_sd": 38.95260277770787,
+      "n_go_selected_se": 8.710066771150192,
+      "n_runs": 20,
+      "test_auprc_max": 0.9023775120717298,
+      "test_auprc_mean": 0.8556027841486881,
+      "test_auprc_min": 0.7856652601220432,
+      "test_auprc_sd": 0.03383130356629247,
+      "test_auprc_se": 0.007564909454166102,
+      "test_auroc_max": 0.9453017832647462,
+      "test_auroc_mean": 0.917843364197531,
+      "test_auroc_min": 0.8781292866941015,
+      "test_auroc_sd": 0.021377863009877488,
+      "test_auroc_se": 0.004780235490376432,
+      "test_f1_max": 0.8311688311688312,
+      "test_f1_mean": 0.7808776470306416,
+      "test_f1_min": 0.72,
+      "test_f1_sd": 0.03339929868811089,
+      "test_f1_se": 0.007468310226743549,
+      "test_precision_max": 0.7982456140350878,
+      "test_precision_mean": 0.7353792989492003,
+      "test_precision_min": 0.688,
+      "test_precision_sd": 0.0350794695824229,
+      "test_precision_se": 0.007844007860093375,
+      "test_recall_max": 0.8981481481481481,
+      "test_recall_mean": 0.8333333333333333,
+      "test_recall_min": 0.75,
+      "test_recall_sd": 0.04184227667381224,
+      "test_recall_se": 0.009356217497599796
+    }
+  ]
+}
