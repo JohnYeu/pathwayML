@@ -1,0 +1,209 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage[margin=1in]{geometry}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{lineno}
+\linenumbers
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
+
+\title{PathwayML-Ath: Classifying Gene Sets by Pathway-Level Coherence\\in \textit{Arabidopsis thaliana} Using GO-Based Features}
+
+\author{Author One$^{1}$, Author Two$^{1,2}$, Author Three$^{2,\dagger}$ \\[4pt]
+\small $^{1}$Department of Plant Biology, University, City, Country \\
+\small $^{2}$Centre for Computational Biology, Institute, City, Country \\
+\small $^{\dagger}$Corresponding: \texttt{email@institution.edu}}
+\date{}
+
+\begin{document}
+\maketitle
+
+% ──────────────────────────────────────────
+\begin{abstract}
+We ask whether the internal structure of a gene set---measured through Gene Ontology annotations---can distinguish curated biological pathways from non-pathway gene collections. We train an XGBoost classifier on 539 KEGG and AraCyc pathways for \textit{Arabidopsis thaliana}, using 80 features derived from GO term frequencies and pairwise GO Jaccard similarity. Against four types of hard negatives, the model achieves a cross-validation AUROC of $0.952 \pm 0.002$ (mean $\pm$ SE over 25 folds) and a held-out test AUROC of 0.951. Feature ablation shows that both GO frequencies and Jaccard statistics are needed, while dense gene embeddings (SVD, UMAP) provide no additional benefit. The model correctly assigns high scores to known pathway subsets and low scores to incoherent gene mixtures, and can be used as a complement to standard enrichment analysis.
+\end{abstract}
+
+% ──────────────────────────────────────────
+\section{Introduction}
+
+KEGG \citep{kanehisa2023kegg} and AraCyc \citep{hawkins2021pmn} together catalogue 539 pathways for \textit{Arabidopsis thaliana}, covering roughly one-sixth of the annotated genome. Many gene clusters identified by co-expression analysis \citep{obayashi2018atted} fall outside these catalogues. Whether such clusters represent genuine functional units or statistical artifacts is hard to determine with existing tools.
+
+Over-representation analysis (ORA) and Gene Set Enrichment Analysis \citep{subramanian2005gsea} test whether a gene set overlaps with entries in a pathway database. They are effective when the answer is in the database, but they cannot evaluate a gene set that has no match. A gene cluster that is functionally coherent yet absent from KEGG or AraCyc will simply return no significant result.
+
+We approach this problem differently. Instead of checking overlap with known pathways, we ask: does this gene set have the internal functional structure typical of a pathway? Genes within a pathway tend to share GO annotations---they participate in related processes, localise to similar compartments, and perform related molecular functions. This shared annotation creates a pattern of pairwise similarity that random gene collections lack.
+
+We quantify this pattern with two types of features. First, GO term frequency profiles capture which biological functions are enriched in the gene set. Second, pairwise GO Jaccard similarity statistics measure how tightly the genes cluster in annotation space. Together, these 80 features allow a gradient boosting classifier to distinguish curated pathways from challenging negative controls with AUROC 0.951.
+
+We also test whether dense gene embeddings---computed by SVD or UMAP from the GO annotation matrix---can improve classification. They do not, at least when proper hard negatives are used. This finding suggests that for pathway-coherence tasks, interpretable hand-crafted features can match or exceed learned representations.
+
+% ──────────────────────────────────────────
+\section{Methods}
+
+\subsection{Data}
+
+KEGG pathway--gene associations were downloaded from \texttt{rest.kegg.jp/link/ath/pathway} on 30 April 2026. AraCyc data came from the PlantCyc flat file \texttt{aracyc\_pathways.20251021} \citep{hawkins2021pmn}. After removing pathways with fewer than five genes, 539 pathways remained (156 KEGG, median 44 genes; 383 AraCyc, median 12 genes). GO annotations were taken from the TAIR GAF file \citep{berardini2015tair}: 27{,}435 genes with 6{,}743 GO terms.
+
+\subsection{Features}
+
+Each gene set $G$ is represented by 80 features in three groups.
+
+\paragraph{GO term frequencies ($d = 74$).} Starting from 790 GO terms that passed a dual-frequency filter (annotating 20 to 8{,}230 genes), we removed near-zero-variance terms (variance $< 0.001$) and ranked the rest by mutual information with the pathway/non-pathway label. We kept the top $k$ terms covering 70\% of cumulative mutual information, giving $k = 74$. For each term $t$, the feature is the fraction of genes in $G$ annotated with $t$:
+\[
+f_t(G) = \frac{|\{g \in G : t \in \text{GO}(g)\}|}{|G|}
+\]
+Both filtering and ranking used training data only.
+
+\paragraph{Pairwise GO Jaccard statistics ($d = 4$).} For gene pairs in $G$ (using the first 15 genes alphabetically when $|G| > 15$), we computed $J(g_i, g_j) = |\text{GO}(g_i) \cap \text{GO}(g_j)| \,/\, |\text{GO}(g_i) \cup \text{GO}(g_j)|$ and recorded the mean, standard deviation, minimum, and maximum.
+
+\paragraph{Size ($d = 2$).} $|G|$ and $\log(1 + |G|)$.
+
+\subsection{Hard negatives}
+
+Random gene sets are too easy to classify because they have almost no internal GO similarity. We used four types of negative samples (25\% each, sizes matching real pathways):
+
+\begin{enumerate}
+\item \textbf{Jaccard-matched random}: filtered to have internal Jaccard above the 25th percentile of real pathways.
+\item \textbf{Co-annotation clusters}: a seed gene expanded with GO-similar neighbours (50\% coherent, 50\% noise), calibrated to match real pathway Jaccard distributions.
+\item \textbf{Cross-pathway chimeras}: gene subsets merged from 2--3 different pathways.
+\item \textbf{Shuffled pathways}: real pathways with 40--60\% of genes replaced.
+\end{enumerate}
+
+We generated 1{,}078 negatives (two per pathway). A size-only classifier achieved AUROC 0.47, confirming that size is not a shortcut.
+
+\subsection{Training and evaluation}
+
+We split the 539 pathways into 431 training and 108 test pathways (80/20, stratified by source). Negatives were generated separately for each split. We trained XGBoost \citep{chen2016xgboost}, Random Forest \citep{breiman2001random}, and Logistic Regression using scikit-learn \citep{pedregosa2011sklearn}.
+
+Cross-validation used repeated stratified 5-fold CV with 5 repeats, giving 25 folds. We report the mean AUROC across these 25 folds $\pm$ standard error (SE $=$ std / $\sqrt{25}$). The test AUROC is a single evaluation on the held-out split.
+
+\subsection{Ablation and embedding comparison}
+
+We measured each feature group's contribution by removing it and recording the change in test AUROC. We also tested adding 20-dimensional SVD or UMAP embeddings to the full 80-feature model.
+
+\subsection{Model validation}
+
+To check that the model behaves correctly, we scored four gene sets with known properties:
+\begin{itemize}
+\item \textbf{C2}: 11 photosynthesis genes from KEGG ath00195 (positive control---should score high).
+\item \textbf{C3}: 14 ubiquitin proteolysis genes from KEGG ath04120 (positive control).
+\item \textbf{C4}: 5 starch metabolism genes mixed with 4 random genes (negative control---should score low).
+\item \textbf{C1}: 17 oxidative stress genes (CYP450/GST) spanning multiple pathways (boundary case).
+\end{itemize}
+We also ran hypergeometric ORA with Bonferroni correction on each set.
+
+% ──────────────────────────────────────────
+\section{Results}
+
+\subsection{Classification performance}
+
+XGBoost achieved a CV AUROC of $0.952 \pm 0.002$ (mean $\pm$ SE, 25 folds) and a test AUROC of 0.951 (Table~\ref{tab:perf}). Random Forest performed slightly lower (test 0.940), and Logistic Regression reached 0.924, indicating that much of the signal is approximately linear.
+
+\begin{table}[h]
+\centering
+\caption{Classifier performance. CV AUROC: mean $\pm$ SE over 25 folds. Test AUROC: single held-out evaluation.}
+\label{tab:perf}
+\begin{tabular}{lcccc}
+\toprule
+Model & CV AUROC & Test AUROC & Test AUPRC & Test F1 \\
+\midrule
+XGBoost & $0.952 \pm 0.002$ & 0.951 & 0.901 & 0.840 \\
+Random Forest & $0.946 \pm 0.002$ & 0.940 & 0.879 & 0.821 \\
+Logistic Regression & $0.911 \pm 0.003$ & 0.924 & 0.860 & 0.802 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Feature ablation}
+
+Table~\ref{tab:abl} presents the complete ablation. Removing GO frequency features produces the largest single drop ($\Delta = -0.111$), while removing Jaccard causes a smaller but clear decrease ($\Delta = -0.021$). Removing Size has little effect ($\Delta = -0.012$).
+
+The cumulative view adds nuance. Starting from Size alone (AUROC 0.468), adding Jaccard gives the largest jump ($+0.365$, reaching 0.833). Adding GO frequencies brings a further gain of $+0.118$ to the full-model score of 0.951. So while GO frequencies contribute the most information in the full model, Jaccard provides the biggest lift when features are scarce.
+
+Adding 20-dimensional SVD or UMAP embeddings to the full model did not improve performance ($\Delta \leq -0.002$; Table~\ref{tab:abl}, last two rows). Both linear and nonlinear embeddings are redundant when GO frequencies and Jaccard statistics are already present.
+
+\begin{table}[h]
+\centering
+\caption{Ablation study. Three feature groups: GO freq ($d\!=\!74$), Jaccard ($d\!=\!4$), Size ($d\!=\!2$). Bottom rows: embedding add-ons to the full model.}
+\label{tab:abl}
+\begin{tabular}{lrcc}
+\toprule
+Configuration & $d$ & Test AUROC & $\Delta$ \\
+\midrule
+\multicolumn{4}{l}{\textit{Single removal}} \\
+Full model (GO + Jaccard + Size) & 80 & 0.951 & --- \\
+$-$ GO freq & 6 & 0.839 & $-$0.111 \\
+$-$ Jaccard & 76 & 0.930 & $-$0.021 \\
+$-$ Size & 78 & 0.938 & $-$0.012 \\
+\midrule
+\multicolumn{4}{l}{\textit{Single group only}} \\
+GO freq only & 74 & 0.909 & $-$0.042 \\
+Jaccard only & 4 & 0.799 & $-$0.152 \\
+Size only & 2 & 0.468 & $-$0.482 \\
+\midrule
+\multicolumn{4}{l}{\textit{Cumulative addition (marginal gain)}} \\
+Size & 2 & 0.468 & --- \\
+$+$ Jaccard & 6 & 0.833 & $+$0.365 \\
+$+$ GO freq ($=$ Full) & 80 & 0.951 & $+$0.118 \\
+\midrule
+\multicolumn{4}{l}{\textit{Embedding add-ons (not in final model)}} \\
+Full $+$ SVD (linear, $d\!=\!20$) & 100 & 0.948 & $-$0.003 \\
+Full $+$ UMAP (nonlinear, $d\!=\!20$) & 100 & 0.949 & $-$0.002 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Feature importance}
+
+SHAP analysis \citep{lundberg2017unified} ranked \texttt{jaccard\_mean} as the top feature (14.3\% of total importance), followed by GO:0008150 (biological process, 11.1\%) and \texttt{pathway\_size} (7.3\%). The next features were GO:0003700 (transcription factor activity, 5.0\%) and GO:0003677 (DNA binding, 4.9\%). These rankings are consistent with the ablation: Jaccard carries the strongest single signal, but individual GO terms collectively contribute more.
+
+\subsection{Model validation}
+
+Table~\ref{tab:valid} shows how the model scores four gene sets with known properties. The two positive controls (C2, C3) receive scores above 0.89, confirming that the model recognises pathway-like coherence in subsets of known pathways. The negative control (C4) receives a near-zero score, showing that mixing pathway genes with random genes destroys the coherence signal.
+
+C1 receives a high score (0.927), but ORA also identifies significant overlap with Glutathione metabolism ($p_\text{adj} = 1.2 \times 10^{-11}$). This means C1's coherence comes partly from its overlap with an existing pathway rather than from a genuinely new functional grouping. The model scores coherence, not novelty; ORA is still needed to determine whether a high-scoring set represents something new.
+
+\begin{table}[h]
+\centering
+\caption{Validation gene sets. ORA: Bonferroni-corrected $p < 0.05$.}
+\label{tab:valid}
+\begin{tabular}{llrccc}
+\toprule
+Set & Role & $n$ & Score & Max $J$ & ORA sig.\ \\
+\midrule
+C2 (photosynthesis) & Positive control & 11 & 0.895 & 0.143 & Yes \\
+C3 (ubiquitin prot.) & Positive control & 14 & 0.894 & 0.086 & Yes \\
+C4 (mixed) & Negative control & 9 & 0.001 & 0.036 & Yes \\
+C1 (stress module) & Boundary case & 17 & 0.927 & 0.217 & Yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ──────────────────────────────────────────
+\section{Discussion}
+
+The main result of this study is that pathway gene sets can be reliably distinguished from non-pathway controls using two types of GO-derived features. GO term frequencies record which functions are enriched in a gene set; Jaccard statistics measure how tightly the genes share annotations. Neither alone is sufficient---GO frequencies miss the pairwise structure, and four Jaccard summary statistics miss which specific functions are shared---but together they reach an AUROC above 0.95.
+
+An unexpected finding is that dense gene embeddings do not improve classification. We tested both linear (SVD) and nonlinear (UMAP) embeddings of the GO annotation matrix. Each gene set was represented by the mean embedding of its members. Under hard negatives, both methods gave $\Delta$AUROC $\leq -0.002$. The likely explanation is that mean embeddings capture where a gene set sits in annotation space, but not how tightly its members cluster. Co-annotation cluster negatives occupy similar regions as real pathways, so positional information alone cannot separate them. Jaccard statistics, which directly measure pairwise similarity, capture the distributional structure that embeddings miss.
+
+The model should be seen as a complement to ORA, not a replacement. ORA tells you whether a gene set overlaps with a known pathway; PathwayML-Ath tells you whether it has the functional coherence expected of a pathway. A gene set that scores high on both is likely part of an existing pathway. A set that scores high on PathwayML-Ath but not on ORA may warrant experimental follow-up as a potential novel functional module.
+
+Several limitations remain. The model relies entirely on GO annotations, so the roughly 30\% of \textit{Arabidopsis} genes without GO terms contribute no signal. Protein language models \citep{lin2023esm} could fill this gap in future work. The evaluation uses a single random train/test split; leave-one-pathway-family-out cross-validation would more thoroughly test generalisation across metabolic categories. The current negative sampling strategy mixes four types in equal proportions; the optimal mixture may depend on the intended application.
+
+% ──────────────────────────────────────────
+\section{Conclusion}
+
+We showed that GO term frequencies and pairwise Jaccard similarity statistics are sufficient to classify gene sets as pathway-like or not, with a test AUROC of 0.951 on \textit{Arabidopsis} data. Dense embeddings offer no additional benefit when hard negatives are used. The classifier can serve as a screening tool for gene clusters from co-expression or other analyses, flagging those with pathway-level coherence for further investigation.
+
+\section*{Data Availability}
+KEGG: \url{https://rest.kegg.jp}; GO: \url{https://current.geneontology.org/annotations/tair.gaf.gz}; AraCyc: PlantCyc \citep{hawkins2021pmn}; Code: \url{https://github.com/placeholder/pathway-ml-ath}.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

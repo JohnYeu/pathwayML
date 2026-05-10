@@ -1,0 +1,4 @@
+,CV AUROC,Test AUROC,Test AUPRC,Test F1
+XGBoost,0.952 +/- 0.002 SE,0.948,0.892,0.831
+Random Forest,0.946 +/- 0.002 SE,0.940,0.879,0.821
+Logistic Regression,0.911 +/- 0.003 SE,0.924,0.860,0.802

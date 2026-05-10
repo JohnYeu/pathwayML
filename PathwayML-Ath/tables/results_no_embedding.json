@@ -1,0 +1,224 @@
+{
+  "ablation": [
+    {
+      "configuration": "Full model",
+      "cv_auroc_mean": 0.9520223211515316,
+      "cv_auroc_se": 0.0019228276231788362,
+      "d": 80,
+      "delta_vs_full": 0.0,
+      "test_auprc": 0.8924071220796562,
+      "test_auroc": 0.9480024005486969
+    },
+    {
+      "configuration": "-GO freq",
+      "cv_auroc_mean": 0.8265261500118993,
+      "cv_auroc_se": 0.005600393778632392,
+      "d": 6,
+      "delta_vs_full": -0.11038237311385468,
+      "test_auprc": 0.7687989298598543,
+      "test_auroc": 0.8376200274348422
+    },
+    {
+      "configuration": "-Jaccard",
+      "cv_auroc_mean": 0.930724750199421,
+      "cv_auroc_se": 0.002090279624153912,
+      "d": 76,
+      "delta_vs_full": -0.021133401920439,
+      "test_auprc": 0.8527491035367205,
+      "test_auroc": 0.9268689986282579
+    },
+    {
+      "configuration": "-Size",
+      "cv_auroc_mean": 0.9449593317100801,
+      "cv_auroc_se": 0.0019310981286459563,
+      "d": 78,
+      "delta_vs_full": -0.00831618655692734,
+      "test_auprc": 0.8808217173491063,
+      "test_auroc": 0.9396862139917695
+    },
+    {
+      "configuration": "GO freq only",
+      "cv_auroc_mean": 0.9211126311517944,
+      "cv_auroc_se": 0.0023706980811061444,
+      "d": 74,
+      "delta_vs_full": -0.040766460905349744,
+      "test_auprc": 0.8253892569825736,
+      "test_auroc": 0.9072359396433471
+    },
+    {
+      "configuration": "Jaccard only",
+      "cv_auroc_mean": 0.7908964213399697,
+      "cv_auroc_se": 0.006579269038007292,
+      "d": 4,
+      "delta_vs_full": -0.14831961591220855,
+      "test_auprc": 0.7144734505349826,
+      "test_auroc": 0.7996827846364883
+    },
+    {
+      "configuration": "Size only",
+      "cv_auroc_mean": 0.5115670040772496,
+      "cv_auroc_se": 0.006561349252134865,
+      "d": 2,
+      "delta_vs_full": -0.479531035665295,
+      "test_auprc": 0.3031009269201811,
+      "test_auroc": 0.4684713648834019
+    },
+    {
+      "configuration": "Cumul: Size",
+      "cv_auroc_mean": 0.5115670040772496,
+      "cv_auroc_se": 0.006561349252134865,
+      "d": 2,
+      "delta_vs_full": -0.479531035665295,
+      "test_auprc": 0.3031009269201811,
+      "test_auroc": 0.4684713648834019
+    },
+    {
+      "configuration": "Cumul: +Jaccard",
+      "cv_auroc_mean": 0.8263183217442882,
+      "cv_auroc_se": 0.005764501193434237,
+      "d": 6,
+      "delta_vs_full": -0.10729595336076814,
+      "test_auprc": 0.7676118003216305,
+      "test_auroc": 0.8407064471879288
+    },
+    {
+      "configuration": "Cumul: +GO freq",
+      "cv_auroc_mean": 0.9520223211515316,
+      "cv_auroc_se": 0.0019228276231788362,
+      "d": 80,
+      "delta_vs_full": 0.0,
+      "test_auprc": 0.8924071220796562,
+      "test_auroc": 0.9480024005486969
+    }
+  ],
+  "candidates": [
+    {
+      "best_ora_p_adj": 1.187532720848621e-11,
+      "candidate": "C1",
+      "closest_by_jaccard": "glutathione-peroxide redox reactions",
+      "closest_by_overlap": "Glutathione metabolism",
+      "max_jaccard": 0.21739130434782608,
+      "max_overlap_fraction": 0.4117647058823529,
+      "n": 17,
+      "novel": false,
+      "ora_significant": true,
+      "score": 0.8826676607131958
+    },
+    {
+      "best_ora_p_adj": 2.1734355446356876e-26,
+      "candidate": "C2",
+      "closest_by_jaccard": "Photosynthesis",
+      "closest_by_overlap": "Photosynthesis",
+      "max_jaccard": 0.14285714285714285,
+      "max_overlap_fraction": 1.0,
+      "n": 11,
+      "novel": false,
+      "ora_significant": true,
+      "score": 0.9237039089202881
+    },
+    {
+      "best_ora_p_adj": 2.0794218670325666e-29,
+      "candidate": "C3",
+      "closest_by_jaccard": "Ubiquitin mediated proteolysis",
+      "closest_by_overlap": "Ubiquitin mediated proteolysis",
+      "max_jaccard": 0.08588957055214724,
+      "max_overlap_fraction": 1.0,
+      "n": 14,
+      "novel": false,
+      "ora_significant": true,
+      "score": 0.894648551940918
+    },
+    {
+      "best_ora_p_adj": 7.861010511613847e-07,
+      "candidate": "C4",
+      "closest_by_jaccard": "starch biosynthesis",
+      "closest_by_overlap": "Starch and sucrose metabolism",
+      "max_jaccard": 0.03571428571428571,
+      "max_overlap_fraction": 0.5555555555555556,
+      "n": 9,
+      "novel": false,
+      "ora_significant": true,
+      "score": 0.0008833639440126717
+    }
+  ],
+  "cv": {
+    "folds": 25,
+    "repeats": 5,
+    "splits": 5
+  },
+  "dataset": {
+    "D": 80,
+    "features": "GO freq (74) + Jaccard (4) + Size (2) = 80",
+    "n_aracyc": 383,
+    "n_genes": 27435,
+    "n_go_filtered": 790,
+    "n_go_selected": 74,
+    "n_kegg": 156,
+    "n_pathways": 539,
+    "negatives": {
+      "jaccard_matched_attempts": 2453,
+      "n_neg": 1078,
+      "n_pos": 539,
+      "negative_counts": {
+        "chimera": 269,
+        "co_annotation": 269,
+        "jaccard_matched": 269,
+        "shuffled": 271
+      },
+      "real_pathway_jaccard_median": 0.17396850063516733,
+      "real_pathway_jaccard_p25": 0.12151854165868145
+    }
+  },
+  "generated_by": "run_no_embedding_reproducible.py",
+  "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+  "performance": {
+    "Logistic Regression": {
+      "cv_auprc_mean": 0.8455500302725051,
+      "cv_auprc_std": 0.03271816789083925,
+      "cv_auroc_mean": 0.9113537748471494,
+      "cv_auroc_se": 0.003399638713989009,
+      "cv_auroc_std": 0.016998193569945044,
+      "model": "Logistic Regression",
+      "n_cv_folds": 25,
+      "test_auprc": 0.8599929589272705,
+      "test_auroc": 0.9238254458161865,
+      "test_f1": 0.8016528925619835,
+      "test_precision": 0.7238805970149254,
+      "test_recall": 0.8981481481481481
+    },
+    "Random Forest": {
+      "cv_auprc_mean": 0.8863449479124563,
+      "cv_auprc_std": 0.022562327296394753,
+      "cv_auroc_mean": 0.9456728985519899,
+      "cv_auroc_se": 0.0018268603465508952,
+      "cv_auroc_std": 0.009134301732754476,
+      "model": "Random Forest",
+      "n_cv_folds": 25,
+      "test_auprc": 0.8788925050039467,
+      "test_auroc": 0.93985768175583,
+      "test_f1": 0.8205128205128205,
+      "test_precision": 0.7619047619047619,
+      "test_recall": 0.8888888888888888
+    },
+    "XGBoost": {
+      "cv_auprc_mean": 0.8993780578694398,
+      "cv_auprc_std": 0.02572208324294835,
+      "cv_auroc_mean": 0.9520223211515316,
+      "cv_auroc_se": 0.0019228276231788362,
+      "cv_auroc_std": 0.009614138115894181,
+      "model": "XGBoost",
+      "n_cv_folds": 25,
+      "test_auprc": 0.8924071220796562,
+      "test_auroc": 0.9480024005486969,
+      "test_f1": 0.8311688311688312,
+      "test_precision": 0.7804878048780488,
+      "test_recall": 0.8888888888888888
+    }
+  },
+  "seed": 42,
+  "split": {
+    "feature_selection": "GO terms selected on training split only",
+    "n_test": 324,
+    "n_train": 1293
+  }
+}

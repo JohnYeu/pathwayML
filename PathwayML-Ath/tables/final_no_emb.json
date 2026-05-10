@@ -1,0 +1,40 @@
+{
+  "dataset": {
+    "D": 80,
+    "features": "GO freq (74) + Jaccard (4) + Size (2) = 80",
+    "n_aracyc": 383,
+    "n_genes": 27435,
+    "n_go_filtered": 790,
+    "n_go_selected": 74,
+    "n_kegg": 156,
+    "n_pathways": 539,
+    "negatives": {
+      "jaccard_matched_attempts": 2453,
+      "n_neg": 1078,
+      "n_pos": 539,
+      "negative_counts": {
+        "chimera": 269,
+        "co_annotation": 269,
+        "jaccard_matched": 269,
+        "shuffled": 271
+      },
+      "real_pathway_jaccard_median": 0.17396850063516733,
+      "real_pathway_jaccard_p25": 0.12151854165868145
+    }
+  },
+  "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
+  "performance": {
+    "Logistic Regression": {
+      "cv": "0.911 +/- 0.003 SE",
+      "test_auroc": 0.924
+    },
+    "Random Forest": {
+      "cv": "0.946 +/- 0.002 SE",
+      "test_auroc": 0.94
+    },
+    "XGBoost": {
+      "cv": "0.952 +/- 0.002 SE",
+      "test_auroc": 0.948
+    }
+  }
+}

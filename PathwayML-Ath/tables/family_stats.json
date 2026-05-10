@@ -1,0 +1,224 @@
+{
+  "09101 Carbohydrate metabolism": {
+    "kegg": 15,
+    "aracyc": 0,
+    "total": 15,
+    "median_size": 64.0
+  },
+  "09103 Lipid metabolism": {
+    "kegg": 13,
+    "aracyc": 0,
+    "total": 13,
+    "median_size": 36.0
+  },
+  "09108 Metabolism of cofactors and vitamins": {
+    "kegg": 11,
+    "aracyc": 0,
+    "total": 11,
+    "median_size": 32.0
+  },
+  "09102 Energy metabolism": {
+    "kegg": 6,
+    "aracyc": 0,
+    "total": 6,
+    "median_size": 57.0
+  },
+  "09105 Amino acid metabolism": {
+    "kegg": 14,
+    "aracyc": 0,
+    "total": 14,
+    "median_size": 46.0
+  },
+  "09104 Nucleotide metabolism": {
+    "kegg": 2,
+    "aracyc": 0,
+    "total": 2,
+    "median_size": 80.5
+  },
+  "09110 Biosynthesis of other secondary metabolites": {
+    "kegg": 9,
+    "aracyc": 0,
+    "total": 9,
+    "median_size": 25.0
+  },
+  "09106 Metabolism of other amino acids": {
+    "kegg": 7,
+    "aracyc": 0,
+    "total": 7,
+    "median_size": 16.0
+  },
+  "09107 Glycan biosynthesis and metabolism": {
+    "kegg": 13,
+    "aracyc": 0,
+    "total": 13,
+    "median_size": 13.0
+  },
+  "09109 Metabolism of terpenoids and polyketides": {
+    "kegg": 7,
+    "aracyc": 0,
+    "total": 7,
+    "median_size": 25.0
+  },
+  "09122 Translation": {
+    "kegg": 5,
+    "aracyc": 0,
+    "total": 5,
+    "median_size": 119.0
+  },
+  "Unclassified (KEGG)": {
+    "kegg": 10,
+    "aracyc": 0,
+    "total": 10,
+    "median_size": 171.0
+  },
+  "09131 Membrane transport": {
+    "kegg": 1,
+    "aracyc": 0,
+    "total": 1,
+    "median_size": 68.0
+  },
+  "09123 Folding, sorting and degradation": {
+    "kegg": 7,
+    "aracyc": 0,
+    "total": 7,
+    "median_size": 62.0
+  },
+  "09121 Transcription": {
+    "kegg": 3,
+    "aracyc": 0,
+    "total": 3,
+    "median_size": 55.0
+  },
+  "09124 Replication and repair": {
+    "kegg": 7,
+    "aracyc": 0,
+    "total": 7,
+    "median_size": 46.0
+  },
+  "09126 Chromosome": {
+    "kegg": 2,
+    "aracyc": 0,
+    "total": 2,
+    "median_size": 66.5
+  },
+  "09125 Information processing in viruses": {
+    "kegg": 2,
+    "aracyc": 0,
+    "total": 2,
+    "median_size": 25.5
+  },
+  "09132 Signal transduction": {
+    "kegg": 3,
+    "aracyc": 0,
+    "total": 3,
+    "median_size": 146.0
+  },
+  "09133 Signaling molecules and interaction": {
+    "kegg": 5,
+    "aracyc": 0,
+    "total": 5,
+    "median_size": 14.0
+  },
+  "09141 Transport and catabolism": {
+    "kegg": 6,
+    "aracyc": 0,
+    "total": 6,
+    "median_size": 88.5
+  },
+  "09158 Development and regeneration": {
+    "kegg": 1,
+    "aracyc": 0,
+    "total": 1,
+    "median_size": 35.0
+  },
+  "09151 Immune system": {
+    "kegg": 1,
+    "aracyc": 0,
+    "total": 1,
+    "median_size": 15.0
+  },
+  "09159 Environmental adaptation": {
+    "kegg": 2,
+    "aracyc": 0,
+    "total": 2,
+    "median_size": 129.5
+  },
+  "09142 Cell motility": {
+    "kegg": 2,
+    "aracyc": 0,
+    "total": 2,
+    "median_size": 45.0
+  },
+  "09154 Digestive system": {
+    "kegg": 1,
+    "aracyc": 0,
+    "total": 1,
+    "median_size": 40.0
+  },
+  "09171 Infectious disease: bacterial": {
+    "kegg": 1,
+    "aracyc": 0,
+    "total": 1,
+    "median_size": 26.0
+  },
+  "Biosynthesis (specialized)": {
+    "kegg": 0,
+    "aracyc": 164,
+    "total": 164,
+    "median_size": 11.0
+  },
+  "Amino acid metabolism": {
+    "kegg": 0,
+    "aracyc": 41,
+    "total": 41,
+    "median_size": 13.0
+  },
+  "Other (AraCyc)": {
+    "kegg": 0,
+    "aracyc": 79,
+    "total": 79,
+    "median_size": 12.0
+  },
+  "Lipid metabolism": {
+    "kegg": 0,
+    "aracyc": 18,
+    "total": 18,
+    "median_size": 13.5
+  },
+  "Degradation": {
+    "kegg": 0,
+    "aracyc": 53,
+    "total": 53,
+    "median_size": 11.0
+  },
+  "Nucleotide metabolism": {
+    "kegg": 0,
+    "aracyc": 8,
+    "total": 8,
+    "median_size": 11.0
+  },
+  "Carbohydrate metabolism": {
+    "kegg": 0,
+    "aracyc": 12,
+    "total": 12,
+    "median_size": 35.5
+  },
+  "Detoxification": {
+    "kegg": 0,
+    "aracyc": 4,
+    "total": 4,
+    "median_size": 15.5
+  },
+  "Hormone/signaling": {
+    "kegg": 0,
+    "aracyc": 3,
+    "total": 3,
+    "median_size": 16.0
+  },
+  "Energy metabolism": {
+    "kegg": 0,
+    "aracyc": 1,
+    "total": 1,
+    "median_size": 35.0
+  }
+}
