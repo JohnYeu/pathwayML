@@ -1,0 +1,6 @@
+comparison,n_positive,n_negative,test_auroc,test_auprc,negative_score_median,negative_score_iqr
+All mixed negatives,108,216,0.948,0.892,0.023,0.004-0.179
+jaccard matched,108,48,0.997,0.999,0.002,0.001-0.010
+co annotation,108,48,0.979,0.99,0.006,0.002-0.041
+chimera,108,66,0.876,0.911,0.217,0.071-0.565
+shuffled,108,54,0.965,0.982,0.024,0.007-0.137

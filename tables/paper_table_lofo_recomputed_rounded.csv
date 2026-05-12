@@ -1,0 +1,11 @@
+family,n_pathways,median_size,median_jaccard,go_terms,auroc,auprc
+Cofactor/vitamin metabolism,29,15,0.138,41,0.957,0.893
+Carbohydrate metabolism,31,30,0.142,37,0.957,0.913
+Other AraCyc,47,12,0.217,40,0.956,0.935
+Amino acid metabolism,60,18,0.175,37,0.944,0.899
+Specialized/other biosynthesis,160,12,0.217,40,0.937,0.867
+Lipid metabolism,50,14,0.174,35,0.931,0.85
+Energy metabolism,15,39,0.139,36,0.927,0.893
+Degradation/catabolism,76,11,0.166,41,0.903,0.818
+Other KEGG/cellular,58,62,0.132,40,0.894,0.773
+Signalling/regulatory,13,27,0.147,37,0.861,0.728

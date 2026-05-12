@@ -4,6 +4,10 @@ __pycache__/
 .venv/
 venv/
 env/
+.claude/
+
+# Local manuscript drafts not meant for GitHub
+paper/
 
 # LaTeX build outputs
 *.aux
@@ -17,4 +21,4 @@ env/
 *.toc
 
 # Local handoff/backups
-PathwayML-Ath/latex/main.codex_backup_*.tex
+latex/main.codex_backup_*.tex

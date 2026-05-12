@@ -1,0 +1,11 @@
+family,old_v6_go_terms,recomputed_go_terms,go_terms_delta,old_v6_auroc,recomputed_auroc,auroc_delta,old_v6_auprc,recomputed_auprc,auprc_delta
+Lipid metabolism,40,35,-5,0.961,0.931,-0.03,0.908,0.85,-0.058
+Other AraCyc,36,40,4,0.956,0.956,0.0,0.93,0.935,0.005
+Amino acid metabolism,36,37,1,0.956,0.944,-0.012,0.931,0.899,-0.032
+Carbohydrate metabolism,39,37,-2,0.954,0.957,0.003,0.921,0.913,-0.008
+Energy metabolism,43,36,-7,0.944,0.927,-0.017,0.902,0.893,-0.009
+Cofactor/vitamin metabolism,38,41,3,0.937,0.957,0.02,0.887,0.893,0.006
+Specialized/other biosynthesis,34,40,6,0.934,0.937,0.003,0.864,0.867,0.003
+Degradation/catabolism,39,41,2,0.923,0.903,-0.02,0.866,0.818,-0.048
+Signalling/regulatory,37,37,0,0.905,0.861,-0.044,0.754,0.728,-0.026
+Other KEGG/cellular,39,40,1,0.895,0.894,-0.001,0.821,0.773,-0.048

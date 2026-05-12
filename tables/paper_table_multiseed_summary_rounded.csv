@@ -1,0 +1,4 @@
+model,n_runs,test_auroc_mean,test_auroc_sd,test_auprc_mean,test_auprc_sd,test_f1_mean,n_go_selected_mean,n_go_selected_sd,n_go_selected_min,n_go_selected_max
+XGBoost,20,0.955,0.01,0.909,0.024,0.839,106.6,38.953,54.0,157.0
+Random Forest,20,0.945,0.012,0.886,0.029,0.824,106.6,38.953,54.0,157.0
+Logistic Regression,20,0.918,0.021,0.856,0.034,0.781,106.6,38.953,54.0,157.0

@@ -1,0 +1,89 @@
+{
+  "commands_run": [
+    "python -m py_compile *.py",
+    "python run_no_embedding_reproducible.py --seed 42 --no-figures",
+    "python run_no_embedding_reproducible.py --seeds 1-20 --no-figures",
+    "python analyze_stability.py --repo .",
+    "python generalization_fast.py",
+    "python run_no_embedding_reproducible.py --seed 42"
+  ],
+  "data_policy": "Current data/ directory was treated as frozen input; outputs in tables/ and figures/ were recomputed.",
+  "generated_at_local": "2026-05-11 17:01:57",
+  "latex_policy": "latex/ was intentionally not updated in this recompute pass; use generated tables/JSON as the paper source of truth.",
+  "lofo_recomputed": {
+    "auprc_max": 0.9352350092012024,
+    "auprc_min": 0.7281306366049627,
+    "auroc_max": 0.9571938168846612,
+    "auroc_min": 0.8609467455621301,
+    "note": "LOFO was recomputed from code; previous V6 cached LOFO values should be replaced in any new paper draft.",
+    "paper_ready_source": "tables/paper_table_lofo_recomputed_rounded.csv",
+    "source": "tables/table8_lofo_generalization.csv"
+  },
+  "multiseed_xgboost": {
+    "n_runs": 20,
+    "selected_go_max": 157,
+    "selected_go_min": 54,
+    "test_auprc_mean": 0.9089192080104096,
+    "test_auprc_sd": 0.0241370899695432,
+    "test_auroc_mean": 0.9552297668038408,
+    "test_auroc_sd": 0.010248086185094,
+    "test_f1_mean": 0.8387383190534458
+  },
+  "negative_type": {
+    "all_mixed_negatives_auprc": 0.8924071220796562,
+    "all_mixed_negatives_auroc": 0.9480024005486968,
+    "chimera_auprc": 0.91104951968597,
+    "chimera_auroc": 0.8764029180695848,
+    "source": "tables/table6_negative_type_performance.csv"
+  },
+  "seed42": {
+    "D": 80,
+    "n_aracyc": 383,
+    "n_genes_with_go": 27435,
+    "n_go_filtered": 790,
+    "n_go_selected": 74,
+    "n_kegg": 156,
+    "n_pathways": 539,
+    "xgboost_cv_auroc_mean": 0.9520223211515316,
+    "xgboost_cv_auroc_se": 0.0019228276231788362,
+    "xgboost_test_auprc": 0.8924071220796562,
+    "xgboost_test_auroc": 0.9480024005486969,
+    "xgboost_test_f1": 0.8311688311688312
+  },
+  "stability": {
+    "n_core_terms_ge_75pct": 57,
+    "n_recurrent_terms_ge_50pct": 127,
+    "n_seeds": 20,
+    "n_unique_go_terms_selected_at_least_once": 184,
+    "pairwise_go_set_jaccard_max": 0.8950617283950617,
+    "pairwise_go_set_jaccard_mean": 0.5240356712878645,
+    "pairwise_go_set_jaccard_min": 0.3181818181818182,
+    "pairwise_go_set_jaccard_sd": 0.1431085477391186,
+    "seed_list": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "selected_go_count_max": 157,
+    "selected_go_count_mean": 106.6,
+    "selected_go_count_min": 54,
+    "selected_go_count_sd": 38.95260277770787
+  }
+}

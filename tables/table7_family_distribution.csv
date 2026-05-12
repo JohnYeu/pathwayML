@@ -1,0 +1,11 @@
+family,n_pathways,n_kegg,n_aracyc,median_size,median_jaccard
+Specialized/other biosynthesis,160,22,138,12.0,0.2174034314281567
+Degradation/catabolism,76,6,70,11.0,0.1655613400098443
+Amino acid metabolism,60,16,44,18.0,0.17508781169962223
+Other KEGG/cellular,58,58,0,62.0,0.131898948943775
+Lipid metabolism,50,16,34,14.0,0.17369989535918293
+Other AraCyc,47,0,47,12.0,0.21656505715047789
+Carbohydrate metabolism,31,9,22,30.0,0.1422329545679787
+Cofactor/vitamin metabolism,29,12,17,15.0,0.13768938189106258
+Energy metabolism,15,7,8,39.0,0.13895850299384843
+Signalling/regulatory,13,10,3,27.0,0.14660421729110715
