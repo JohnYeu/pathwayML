@@ -1,0 +1,2 @@
+n_seeds,seed_list,n_unique_go_terms_selected_at_least_once,selected_go_count_mean,selected_go_count_sd,selected_go_count_min,selected_go_count_max,n_core_terms_ge_75pct,n_recurrent_terms_ge_50pct,pairwise_go_set_jaccard_mean,pairwise_go_set_jaccard_sd,pairwise_go_set_jaccard_min,pairwise_go_set_jaccard_max,pearson_corr_selected_go_count_with_test_auroc,pearson_corr_selected_go_count_with_cv_auroc
+20,"[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]",179,126.0,35.877,37,155,111,145,0.657,0.204,0.223,0.903,0.484,0.049

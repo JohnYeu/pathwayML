@@ -1,0 +1,23 @@
+{
+  "arrays": {
+    "X_all": "Feature matrix in sample order.",
+    "feature_names": "Column names aligned to X_all columns.",
+    "sample_ids": "Sample IDs aligned to X_all rows.",
+    "sample_splits": "train/test split label aligned to X_all rows.",
+    "sample_types": "curated_pathway or negative type aligned to X_all rows.",
+    "selected_go": "GO terms selected using the training split only.",
+    "test_idx": "Row indices used for held-out testing.",
+    "train_idx": "Row indices used for training.",
+    "y_all": "Binary labels in sample order."
+  },
+  "n_features": 96,
+  "n_samples": 1617,
+  "n_test": 324,
+  "n_train": 1293,
+  "seed": 2,
+  "source_files": {
+    "human_readable_samples": "tables/multiseed/reproducibility/seed_XXXX/samples.json",
+    "human_readable_splits": "tables/multiseed/reproducibility/seed_XXXX/splits.json"
+  },
+  "split_protocol": "positive_pathways_split_first_then_generate_split_specific_negatives"
+}

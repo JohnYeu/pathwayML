@@ -41,6 +41,7 @@ from sklearn.feature_selection import VarianceThreshold, mutual_info_classif
 from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPRegressor
 import xgboost as xgb
+import run_no_embedding_reproducible as core
 
 warnings.filterwarnings('ignore')
 
@@ -69,21 +70,25 @@ print("=" * 70)
 print("Step 1: Loading data")
 print("=" * 70)
 
+# gene_go: gene -> set of GO terms; go_genes: GO term -> set of genes
 gene_go = defaultdict(set)
 go_genes = defaultdict(set)
+# Parse TAIR GAF (Gene Association Format), keeping only valid Arabidopsis loci
 with open(os.path.join(DATA_DIR, 'tair.gaf')) as f:
     for line in f:
-        if line.startswith('!'):
+        if line.startswith('!'):  # skip header/comment lines
             continue
         p = line.strip().split('\t')
         if len(p) < 15:
             continue
         g = p[1].upper()
         go = p[4]
+        # Accept only canonical AGI locus identifiers (e.g. AT1G01010)
         if re.match(r'AT[0-9]G[0-9]{5}', g):
             gene_go[g].add(go)
             go_genes[go].add(g)
 
+# Load KEGG pathway-gene memberships, stripping namespace prefixes
 kegg = defaultdict(set)
 with open(os.path.join(DATA_DIR, 'kegg_pathway_genes.txt')) as f:
     for l in f:
@@ -91,11 +96,12 @@ with open(os.path.join(DATA_DIR, 'kegg_pathway_genes.txt')) as f:
         if len(p) == 2:
             kegg[p[0].replace('path:', '')].add(p[1].replace('ath:', ''))
 
+# Load AraCyc pathway-gene memberships; skip header and placeholder genes
 aracyc = defaultdict(set)
 aracyc_file = os.path.join(DATA_DIR, 'aracyc_pathways.20251021')
 if os.path.exists(aracyc_file):
     with open(aracyc_file) as f:
-        f.readline()
+        f.readline()  # skip header row
         for line in f:
             parts = line.strip().split('\t')
             if len(parts) >= 7:
@@ -103,16 +109,18 @@ if os.path.exists(aracyc_file):
                 if gene != 'NIL' and gene.startswith('AT'):
                     aracyc[pw].add(gene)
 
+# Merge KEGG + AraCyc into a single positive pathway set (min 5 genes each)
 combined = {}
 for k, v in kegg.items():
     if len(v) >= 5:
         combined[k] = v
 for k, v in aracyc.items():
     if len(v) >= 5:
-        combined[f"AC_{k}"] = v
+        combined[f"AC_{k}"] = v  # prefix avoids ID collisions with KEGG
 
 bg = list(gene_go.keys())
 total_genes = len(gene_go)
+# Filter GO terms: too-small terms lack signal; too-broad terms lack specificity
 upper_thresh = int(0.30 * total_genes)
 go_filtered = sorted([t for t, g in go_genes.items() if 20 <= len(g) <= upper_thresh])
 go_gene_sets = {t: set(g for g in gene_go if t in gene_go[g]) for t in go_filtered}
@@ -245,12 +253,13 @@ except Exception as e:
 # --- 3d. Autoencoder (non-linear) --- Learns a compressed representation via reconstruction
 print("\n  [Autoencoder] Non-linear embedding (d=20)...")
 try:
-    # Try PyTorch first
+    # Prefer PyTorch for proper gradient-based autoencoder; falls back to sklearn below
     import torch
     import torch.nn as nn
     from torch.utils.data import DataLoader, TensorDataset
 
     class GOAutoencoder(nn.Module):
+        """Bottleneck autoencoder: input -> 256 -> 64 -> latent -> 64 -> 256 -> input."""
         def __init__(self, input_dim, latent_dim=20):
             super().__init__()
             self.encoder = nn.Sequential(
@@ -334,7 +343,12 @@ print("=" * 70)
 
 
 def jaccard_stats(gs, max_n=15):
-    """Pairwise GO Jaccard stats (deterministic: sorted genes)."""
+    """Summarise pairwise GO-annotation Jaccard within a gene set.
+
+    Subsamples to max_n genes to keep O(n^2) tractable for large sets.
+    Returns [mean, std, min, max] -- four features capturing functional
+    cohesion of the gene set.
+    """
     genes = sorted(gs)
     if len(genes) > max_n:
         genes = list(np.random.choice(genes, max_n, replace=False))
@@ -351,7 +365,7 @@ def jaccard_stats(gs, max_n=15):
 
 
 def embedding_features(gs, emb_matrix):
-    """Mean embedding of gene set members (set-level representation)."""
+    """Aggregate gene-level embeddings into a single set-level vector via mean pooling."""
     idx = [gene_idx[g] for g in gs if g in gene_idx]
     if not idx:
         return np.zeros(emb_matrix.shape[1])
@@ -359,72 +373,23 @@ def embedding_features(gs, emb_matrix):
 
 
 def size_features(gs):
+    """Raw and log-transformed gene-set size (controls for trivial size effects)."""
     return [float(len(gs)), float(np.log1p(len(gs)))]
 
 
-# Build hard negatives (4 types, size-matched to real pathways)
-# Exploratory comparison uses a similar four-type negative setup, not the canonical saved sample construction
-print("  Generating hard negatives...")
-pos_sets = list(combined.values())
-n_pos = len(pos_sets)
-n_neg = n_pos * 2
-n_per = n_neg // 4
-pw_list = list(combined.values())
-bg_ann = [g for g in bg if len(gene_go.get(g, set())) >= 3]
-
-neg_sets = []
-
-# Type A: Size-matched random
-for _ in range(n_per):
-    sz = np.random.choice(pw_sizes)
-    neg_sets.append(set(np.random.choice(bg, min(sz, len(bg)), replace=False)))
-
-# Type B: Co-annotation cluster (Jaccard-matched)
-for _ in range(n_per):
-    seed = np.random.choice(bg_ann)
-    sz = min(np.random.choice(pw_sizes), 50)
-    seed_go = gene_go.get(seed, set())
-    cands = []
-    for g in np.random.choice(bg_ann, min(500, len(bg_ann)), replace=False):
-        if g == seed:
-            continue
-        shared = len(seed_go & gene_go.get(g, set()))
-        if shared > 0:
-            cands.append((g, shared / len(seed_go | gene_go.get(g, set()))))
-    cands.sort(key=lambda x: -x[1])
-    cluster = {seed}
-    for g, j in cands[:max(2, int(sz * 0.5))]:
-        cluster.add(g)
-        if len(cluster) >= int(sz * 0.5) + 1:
-            break
-    noise = [g for g in np.random.choice(bg, min((sz - len(cluster)) * 3, len(bg)), replace=False)
-             if g not in cluster][:sz - len(cluster)]
-    cluster.update(noise)
-    neg_sets.append(cluster)
-
-# Type C: Cross-pathway chimera
-for _ in range(n_per):
-    n_pws = np.random.choice([2, 3])
-    chosen = [list(pw_list[i]) for i in np.random.choice(len(pw_list), n_pws, replace=False)]
-    sz = np.random.choice(pw_sizes)
-    per = max(2, sz // n_pws)
-    ch = set()
-    for pw in chosen:
-        ch.update(np.random.choice(pw, min(per, len(pw)), replace=False))
-    neg_sets.append(ch)
-
-# Type D: Shuffled pathway
-for _ in range(n_neg - 3 * n_per):
-    pw = list(pw_list[np.random.randint(len(pw_list))])
-    frac = np.random.uniform(0.4, 0.6)
-    n_rep = max(1, int(len(pw) * frac))
-    keep = list(np.random.choice(pw, len(pw) - n_rep, replace=False))
-    add = list(np.random.choice(bg, n_rep, replace=False))
-    neg_sets.append(set(keep + add))
-
-all_sets = list(pos_sets) + neg_sets
-y_all = np.array([1] * n_pos + [0] * len(neg_sets))
-print(f"  Dataset: {len(all_sets)} samples ({n_pos} pos, {len(neg_sets)} neg)")
+# Reuse the current split-aware sampler from the canonical no-embedding
+# pipeline. This keeps optional embedding diagnostics aligned with the active
+# four-decoy design and prevents pure partial pathways from being treated as
+# ordinary negatives.
+print("  Generating current four-decoy benchmark samples...")
+data_bundle = core.load_data()
+records, sample_meta, split_info, tr_idx, te_idx = core.build_split_samples(data_bundle, seed=SEED)
+all_sets = [set(record["genes"]) for record in records]
+y_all = np.array([int(record["label"]) for record in records])
+n_pos = int((y_all == 1).sum())
+n_neg = int((y_all == 0).sum())
+print(f"  Dataset: {len(all_sets)} samples ({n_pos} pos, {n_neg} neg)")
+print(f"  Negative types: {sample_meta['negative_counts']}")
 
 # Build base features (Jaccard + Size)
 print("  Computing Jaccard + Size features...")
@@ -450,19 +415,24 @@ print("\n" + "=" * 70)
 print("Step 5: Evaluation (Repeated 5-fold x 5 CV + held-out test)")
 print("=" * 70)
 
-X_train, X_test, y_train, y_test = train_test_split(
-    np.arange(len(y_all)), y_all, test_size=0.2, random_state=SEED, stratify=y_all
-)
-tr_idx, te_idx = X_train, X_test  # these are indices
+# Train/test indices come from core.build_split_samples(): positives are split
+# first, then negatives are generated separately for train and test.
 
 rskf = RepeatedStratifiedKFold(n_splits=CV_SPLITS, n_repeats=CV_REPEATS, random_state=SEED)
 
 
 def evaluate(name, X):
-    """Run repeated CV + test evaluation."""
+    """Train XGBoost on a feature matrix and report CV + held-out AUROC.
+
+    Two-stage evaluation to separate tuning variance from generalization:
+      1. Repeated stratified CV on training split -> CV AUROC distribution
+      2. Retrain on full training split, score held-out test set -> test AUROC
+    SE is computed over the CV folds so confidence intervals stay conservative.
+    """
     Xtr, Xte = X[tr_idx], X[te_idx]
     ytr, yte = y_all[tr_idx], y_all[te_idx]
 
+    # Stage 1: repeated CV to estimate expected performance and variance
     aucs = []
     for tr, va in rskf.split(Xtr, ytr):
         m = xgb.XGBClassifier(
@@ -473,6 +443,7 @@ def evaluate(name, X):
         m.fit(Xtr[tr], ytr[tr])
         aucs.append(roc_auc_score(ytr[va], m.predict_proba(Xtr[va])[:, 1]))
 
+    # Stage 2: retrain on all training data, evaluate on unseen test split
     m = xgb.XGBClassifier(
         n_estimators=300, max_depth=5, learning_rate=0.03,
         scale_pos_weight=2, min_child_weight=3,
@@ -480,6 +451,7 @@ def evaluate(name, X):
     )
     m.fit(Xtr, ytr)
     test_auc = roc_auc_score(yte, m.predict_proba(Xte)[:, 1])
+    # Standard error of the mean across CV folds
     se = np.std(aucs) / np.sqrt(len(aucs))
 
     return {
@@ -617,6 +589,7 @@ print("\n" + "=" * 70)
 print("Conclusions")
 print("=" * 70)
 
+# Compare only "base + single embedding" configs (exclude ALL and embedding-only)
 best_emb = max([r for r in results if '+' in r['name'] and 'ALL' not in r['name']],
                key=lambda r: r['test'])
 worst_emb = min([r for r in results if '+' in r['name'] and 'ALL' not in r['name']],

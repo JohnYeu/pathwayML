@@ -1,5 +1,5 @@
 candidate,n,score,max_jaccard,closest_by_jaccard,max_overlap_fraction,closest_by_overlap,ora_significant,best_ora_p_adj,novel
-C1,17,0.8826676607131958,0.21739130434782608,glutathione-peroxide redox reactions,0.4117647058823529,Glutathione metabolism,True,1.187532720848621e-11,False
-C2,11,0.9237039089202881,0.14285714285714285,Photosynthesis,1.0,Photosynthesis,True,2.1734355446356876e-26,False
-C3,14,0.894648551940918,0.08588957055214724,Ubiquitin mediated proteolysis,1.0,Ubiquitin mediated proteolysis,True,2.0794218670325666e-29,False
-C4,9,0.0008833639440126717,0.03571428571428571,starch biosynthesis,0.5555555555555556,Starch and sucrose metabolism,True,7.861010511613847e-07,False
+C1,17,0.9963729381561279,0.21739130434782608,glutathione-peroxide redox reactions,0.4117647058823529,Glutathione metabolism,True,1.187532720848621e-11,False
+C2,11,0.9925984144210815,0.14285714285714285,Photosynthesis,1.0,Photosynthesis,True,2.1734355446356876e-26,False
+C3,14,0.9982169270515442,0.08588957055214724,Ubiquitin mediated proteolysis,1.0,Ubiquitin mediated proteolysis,True,2.0794218670325666e-29,False
+C4,9,0.0008131391950882971,0.03571428571428571,starch biosynthesis,0.5555555555555556,Starch and sucrose metabolism,True,7.861010511613847e-07,False

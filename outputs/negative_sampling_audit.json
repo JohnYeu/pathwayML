@@ -1,0 +1,139 @@
+{
+  "boundary_probe_checks": {
+    "boundary_probe_file_present": true,
+    "boundary_probes_in_negative_ids": false,
+    "boundary_probes_in_training_ids": false,
+    "boundary_probes_used_for_auroc_auprc": false
+  },
+  "expected_primary_negative_types": [
+    "empirical_size_matched_random",
+    "full_replacement_shuffled",
+    "corrupted_pathway",
+    "cross_pathway_mixture"
+  ],
+  "expected_types_present": [
+    "corrupted_pathway",
+    "cross_pathway_mixture",
+    "empirical_size_matched_random",
+    "full_replacement_shuffled"
+  ],
+  "forbidden_primary_negative_types_present": [],
+  "leakage_checks": {
+    "go_feature_selection_training_only": true,
+    "positive_split_before_negative_generation": true,
+    "test_samples_used_for_mi_ranking": false,
+    "test_samples_used_for_variance_filter": false
+  },
+  "n_negative_metadata_rows": 1078,
+  "negative_counts_by_split": [
+    {
+      "n": 54,
+      "negative_type": "corrupted_pathway",
+      "split": "test"
+    },
+    {
+      "n": 54,
+      "negative_type": "cross_pathway_mixture",
+      "split": "test"
+    },
+    {
+      "n": 54,
+      "negative_type": "empirical_size_matched_random",
+      "split": "test"
+    },
+    {
+      "n": 54,
+      "negative_type": "full_replacement_shuffled",
+      "split": "test"
+    },
+    {
+      "n": 215,
+      "negative_type": "corrupted_pathway",
+      "split": "train"
+    },
+    {
+      "n": 215,
+      "negative_type": "cross_pathway_mixture",
+      "split": "train"
+    },
+    {
+      "n": 216,
+      "negative_type": "empirical_size_matched_random",
+      "split": "train"
+    },
+    {
+      "n": 216,
+      "negative_type": "full_replacement_shuffled",
+      "split": "train"
+    }
+  ],
+  "negative_design_summary": [
+    {
+      "comparison": "all_negatives",
+      "ks_p_value": 0.0045474020281341,
+      "ks_statistic": 0.0918367346938775,
+      "mean_size_negative": 27.851576994434136,
+      "mean_size_positive": 38.03896103896104,
+      "median_size_negative": 13.0,
+      "median_size_positive": 15.0,
+      "n_negative": 1078,
+      "n_positive": 539,
+      "negative_to_positive_ratio": 2.0
+    },
+    {
+      "comparison": "empirical_size_matched_random",
+      "ks_p_value": 0.7560140449205716,
+      "ks_statistic": 0.0490002061430632,
+      "mean_size_negative": 40.111111111111114,
+      "mean_size_positive": 38.03896103896104,
+      "median_size_negative": 14.0,
+      "median_size_positive": 15.0,
+      "n_negative": 270,
+      "n_positive": 539,
+      "negative_to_positive_ratio": 0.5009276437847866
+    },
+    {
+      "comparison": "full_replacement_shuffled",
+      "ks_p_value": 0.7237734591300158,
+      "ks_statistic": 0.0505462791177076,
+      "mean_size_negative": 31.274074074074075,
+      "mean_size_positive": 38.03896103896104,
+      "median_size_negative": 16.0,
+      "median_size_positive": 15.0,
+      "n_negative": 270,
+      "n_positive": 539,
+      "negative_to_positive_ratio": 0.5009276437847866
+    },
+    {
+      "comparison": "corrupted_pathway",
+      "ks_p_value": 0.6268736410301508,
+      "ks_statistic": 0.054810298570256,
+      "mean_size_negative": 27.197026022304833,
+      "mean_size_positive": 38.03896103896104,
+      "median_size_negative": 13.0,
+      "median_size_positive": 15.0,
+      "n_negative": 269,
+      "n_positive": 539,
+      "negative_to_positive_ratio": 0.4990723562152133
+    },
+    {
+      "comparison": "cross_pathway_mixture",
+      "ks_p_value": 3.168233570584036e-15,
+      "ks_statistic": 0.3039361063790166,
+      "mean_size_negative": 12.765799256505575,
+      "mean_size_positive": 38.03896103896104,
+      "median_size_negative": 9.0,
+      "median_size_positive": 15.0,
+      "n_negative": 269,
+      "n_positive": 539,
+      "negative_to_positive_ratio": 0.4990723562152133
+    }
+  ],
+  "negative_type_check_passed": true,
+  "observed_negative_types_seed42": [
+    "corrupted_pathway",
+    "cross_pathway_mixture",
+    "empirical_size_matched_random",
+    "full_replacement_shuffled"
+  ]
+}

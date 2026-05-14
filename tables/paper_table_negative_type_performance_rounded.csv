@@ -1,6 +1,6 @@
-comparison,n_positive,n_negative,test_auroc,test_auprc,negative_score_median,negative_score_iqr
-All mixed negatives,108,216,0.948,0.892,0.023,0.004-0.179
-jaccard matched,108,48,0.997,0.999,0.002,0.001-0.010
-co annotation,108,48,0.979,0.99,0.006,0.002-0.041
-chimera,108,66,0.876,0.911,0.217,0.071-0.565
-shuffled,108,54,0.965,0.982,0.024,0.007-0.137
+comparison,n_positive,n_negative,test_auroc,test_auprc,test_f1,test_precision,test_recall,negative_score_median,negative_score_iqr
+All mixed negatives,108,216,0.982,0.971,0.901,0.877,0.926,0.004,0.001-0.025
+empirical size matched random,108,54,0.998,0.999,0.962,1.0,0.926,0.001,0.000-0.004
+full replacement shuffled,108,54,0.989,0.994,0.952,0.98,0.926,0.002,0.001-0.007
+corrupted pathway,108,54,0.993,0.997,0.962,1.0,0.926,0.006,0.002-0.017
+cross pathway mixture,108,54,0.95,0.977,0.909,0.893,0.926,0.054,0.012-0.464

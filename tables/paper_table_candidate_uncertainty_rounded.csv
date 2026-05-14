@@ -1,5 +1,5 @@
 candidate,n_runs,score_mean,score_sd,score_min,score_max,n_above_0_5,ora_significant_all,novel_any,max_overlap_fraction,closest_by_overlap,best_ora_p_adj
-C1,20,0.877,0.1,0.645,0.983,20,True,False,0.412,Glutathione metabolism,1.187532720848621e-11
-C2,20,0.823,0.15,0.35,0.947,19,True,False,1.0,Photosynthesis,2.1734355446356876e-26
-C3,20,0.958,0.034,0.878,0.998,20,True,False,1.0,Ubiquitin mediated proteolysis,2.0794218670325666e-29
-C4,20,0.002,0.002,0.001,0.009,0,True,False,0.556,Starch and sucrose metabolism,7.861010511613847e-07
+C1,20,0.963,0.049,0.814,0.997,20,True,False,0.412,Glutathione metabolism,0.0
+C2,20,0.926,0.094,0.646,0.994,20,True,False,1.0,Photosynthesis,0.0
+C3,20,0.994,0.005,0.981,0.999,20,True,False,1.0,Ubiquitin mediated proteolysis,0.0
+C4,20,0.001,0.001,0.0,0.003,0,True,False,0.556,Starch and sucrose metabolism,0.0

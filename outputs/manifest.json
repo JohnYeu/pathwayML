@@ -1,0 +1,202 @@
+{
+  "files": [
+    {
+      "bytes": 132124,
+      "path": "figures/fig_ablation.png",
+      "sha256": "68b5687bb428629aefedfc10fa3197e4d4493e6a5d98c1d2e53dda9182600972"
+    },
+    {
+      "bytes": 226732,
+      "path": "figures/fig_boundary_partial_probe_scores.png",
+      "sha256": "c37888fa1867305c0168fb2473819c7a326ddd3e1c9866546ae9f6b14ab17da2"
+    },
+    {
+      "bytes": 78590,
+      "path": "figures/fig_candidate_score_uncertainty.png",
+      "sha256": "175aae5b8c1028a38dbcac4e39804102fdd9927a35904e81d032461878335c3b"
+    },
+    {
+      "bytes": 318299,
+      "path": "figures/fig_go_selection_stability.png",
+      "sha256": "10a80c3329ddfa186b69cd577cf2609294a558015dd98965ec22f076d55c659e"
+    },
+    {
+      "bytes": 154671,
+      "path": "figures/fig_lofo_generalization.png",
+      "sha256": "e5d93f1a0229f8a03ce9613b31fcad585dbc35cc5326ad02f7155ee344ec6825"
+    },
+    {
+      "bytes": 159750,
+      "path": "figures/fig_negative_type_performance.png",
+      "sha256": "a37eb6066a2e8fcfeb89580320c6eb5d21f2b8bf7fdeb398d613eb903191b7c9"
+    },
+    {
+      "bytes": 196555,
+      "path": "figures/fig_size_only_by_negative_type.png",
+      "sha256": "8507fa3c82a0180658f8e1f699fc3f14944b177ae46bcd8ea55f79e0f69251be"
+    },
+    {
+      "bytes": 148577,
+      "path": "figures/fig_supp_model_comparison.png",
+      "sha256": "20ef8fac364e6176eb7fb8ea9e9d07fa18dc82d28cf7989b329ec42a41386178"
+    },
+    {
+      "bytes": 87598,
+      "path": "figures/fig_supp_negative_ratio_sensitivity.png",
+      "sha256": "36871d00e782655be2f55871d2209e4af536fba213ef483403a062b3b7a78917"
+    },
+    {
+      "bytes": 3101,
+      "path": "tables/ablation_full.json",
+      "sha256": "47b2f93d204f60aaf88aa0bbde09ec45b85f9ffa5095c8725f6f4b6579202992"
+    },
+    {
+      "bytes": 44643,
+      "path": "tables/boundary_partial_probe_scores.csv",
+      "sha256": "9a0cfa7ecceb49b12dd335badb56286e807cc39e6f8b1366936ae75e4d7e8722"
+    },
+    {
+      "bytes": 1385,
+      "path": "tables/boundary_partial_probe_summary.csv",
+      "sha256": "34ff44b78f3ee380074e09d10c2945ddc9ead3103e6d4db42af4ece8fc3141cc"
+    },
+    {
+      "bytes": 4154,
+      "path": "tables/family_stats.json",
+      "sha256": "3b30376183ce036b226734680cff8b1ff0570e8906a74748fe2a0ae1c276950c"
+    },
+    {
+      "bytes": 2341,
+      "path": "tables/final_no_emb.json",
+      "sha256": "05a70af5b80dd0584ab0117710cdac40b64ad3d9d0f11455127d741131869dec"
+    },
+    {
+      "bytes": 7562,
+      "path": "tables/generalization_analysis_summary.json",
+      "sha256": "28ddadbf7d9c02939d98d3d10d734853c6024aec93a9ebe7611831ce2092e8f0"
+    },
+    {
+      "bytes": 668,
+      "path": "tables/go_selection_stability_summary.json",
+      "sha256": "c9f78fe88125d2981873e7bb4b5e72faab5989eb6f3fd9a612f856f2427e5bc8"
+    },
+    {
+      "bytes": 5083,
+      "path": "tables/lofo_generalization_summary.json",
+      "sha256": "fec19fefcaca328f9426628052ad3a0d9fcdcc16957c06a88e9ee0c9d0f603a1"
+    },
+    {
+      "bytes": 13825,
+      "path": "tables/multiseed_per_seed_results.csv",
+      "sha256": "f4de728f0914123e423217e492f5f89dae3a638b7b48b520e070b3e4c5b61858"
+    },
+    {
+      "bytes": 832,
+      "path": "tables/negative_design_summary.csv",
+      "sha256": "806ddc1f4f2fdf1dbac97bdd1632285f8b3d96a85670b15c91c229cc08b9c770"
+    },
+    {
+      "bytes": 522856,
+      "path": "tables/negative_metadata.csv",
+      "sha256": "51cad46ac07e11a99da31e19c0c0d5d937ae31ab53a1a873a6ac8e1b8021f0b3"
+    },
+    {
+      "bytes": 6127,
+      "path": "tables/paper_key_results_recomputed.json",
+      "sha256": "88427dd52ff890f3158475a24b961488ac00a0f108527d241561ea9c9b4c5a00"
+    },
+    {
+      "bytes": 925,
+      "path": "tables/reproducibility/candidate_gene_sets.json",
+      "sha256": "ddb9c9f8821f199f203acd04dfad75143c5169828e355e160e9f4ec16337446b"
+    },
+    {
+      "bytes": 1223,
+      "path": "tables/reproducibility/feature_names.json",
+      "sha256": "dbef9a29b6852183f2c7df44139d1234b7ea592958e2e8e03500566f39f66800"
+    },
+    {
+      "bytes": 2535521,
+      "path": "tables/reproducibility/samples.json",
+      "sha256": "c9e5ae276dd533f50e5defe246d933018b328b0212f8c604e99d49578477e2c5"
+    },
+    {
+      "bytes": 1122,
+      "path": "tables/reproducibility/selected_go_terms.json",
+      "sha256": "c9057f54eb2cb5b84488fd0bf495a9450e349e70364775cf3c677cdbb7ebb9f9"
+    },
+    {
+      "bytes": 134567,
+      "path": "tables/reproducibility/splits.json",
+      "sha256": "d57ea39bf608601449f684799a3e7f926e346aaf879ee86fe42ef17d12453421"
+    },
+    {
+      "bytes": 9370,
+      "path": "tables/results_no_embedding.json",
+      "sha256": "b5184c788bc40e603097f317030f9be6e002df9e44dd9a563c1673aa700ef80f"
+    },
+    {
+      "bytes": 13499,
+      "path": "tables/size_only_baseline_summary.json",
+      "sha256": "5cbe04edd2d0b7e4068e7f876ed8b55d121110d8bfb706a6c01b929fd078e3c8"
+    },
+    {
+      "bytes": 9653,
+      "path": "tables/supplementary_analysis_summary.json",
+      "sha256": "9de73f30733ea5309d91113fd4ad9246b7441321d2e87a719b14a1926a8dc4be"
+    },
+    {
+      "bytes": 3569,
+      "path": "tables/supplementary_model_comparison.csv",
+      "sha256": "9c7b47e10f2244ebacc7428277d0db7046b23e2944ee43e0c2c502e5c5c1d274"
+    },
+    {
+      "bytes": 3659,
+      "path": "tables/supplementary_negative_ratio_sensitivity.csv",
+      "sha256": "a155c7dc75d74d43b493cdeb89ec87e44a9d2fa89a0bcbf4e3704e123c3b0f9e"
+    },
+    {
+      "bytes": 193,
+      "path": "tables/table1_seed42_performance.csv",
+      "sha256": "eb1036d3be433f400d3ab3977109300114cf61a693c21e79fb5a9160bfc91cda"
+    },
+    {
+      "bytes": 3132,
+      "path": "tables/table2_multiseed_summary.csv",
+      "sha256": "5d4abf4c2c265511cf22a229717bb21619f1382562b66ae5ea2d8abc1c11e509"
+    },
+    {
+      "bytes": 1791,
+      "path": "tables/table3_ablation.csv",
+      "sha256": "b6f3861073b77f29bc25d15728290da391ee8735a729da4741717bcb65575492"
+    },
+    {
+      "bytes": 637,
+      "path": "tables/table4_go_selection_stability.csv",
+      "sha256": "792d2a272ced32fed3c90847b2abc84ac4af00d96800b27bd36728cf14f2d845"
+    },
+    {
+      "bytes": 893,
+      "path": "tables/table5_negative_type_performance.csv",
+      "sha256": "65bc6810bced2761866dfe61d7ac9f2df2c10a814cf5564a83d7342a07ee5d3a"
+    },
+    {
+      "bytes": 5461,
+      "path": "tables/table6_size_only_by_negative_type.csv",
+      "sha256": "084aa16e5ee91317594f5b0c84284ac13800f0a47ae6adf1b2918b39e2bcc089"
+    },
+    {
+      "bytes": 2080,
+      "path": "tables/table7_lofo_generalization.csv",
+      "sha256": "29af772f9971fdb2f289c11030cef5942fef96ebc8ba380ae0fdc613c426ab81"
+    },
+    {
+      "bytes": 777,
+      "path": "tables/table8_candidate_scoring.csv",
+      "sha256": "024a2117787aea0ee13ef717218b358dd685f2b60d0a8f3be5dac76be2a53163"
+    }
+  ],
+  "generated_by": "finalize_recomputed_outputs.py",
+  "missing_required_figures": [],
+  "missing_required_tables": []
+}

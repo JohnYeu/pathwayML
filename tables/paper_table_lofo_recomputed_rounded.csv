@@ -1,11 +1,11 @@
-family,n_pathways,median_size,median_jaccard,go_terms,auroc,auprc
-Cofactor/vitamin metabolism,29,15,0.138,41,0.957,0.893
-Carbohydrate metabolism,31,30,0.142,37,0.957,0.913
-Other AraCyc,47,12,0.217,40,0.956,0.935
-Amino acid metabolism,60,18,0.175,37,0.944,0.899
-Specialized/other biosynthesis,160,12,0.217,40,0.937,0.867
-Lipid metabolism,50,14,0.174,35,0.931,0.85
-Energy metabolism,15,39,0.139,36,0.927,0.893
-Degradation/catabolism,76,11,0.166,41,0.903,0.818
-Other KEGG/cellular,58,62,0.132,40,0.894,0.773
-Signalling/regulatory,13,27,0.147,37,0.861,0.728
+family,n_heldout_pathways,n_test_negatives,n_train_pathways,n_go_selected,D,median_size,median_jaccard,test_auroc,test_auprc,f1,precision,recall,positive_score_median,negative_score_median
+Carbohydrate metabolism,31,62,508,42,48,30.0,0.142,0.994,0.988,0.954,0.912,1.0,0.97,0.018
+Amino acid metabolism,60,120,479,42,48,18.0,0.175,0.989,0.979,0.921,0.879,0.967,0.981,0.026
+Signalling/regulatory,13,26,526,39,45,27.0,0.147,0.985,0.976,0.889,0.857,0.923,0.964,0.023
+Specialized/other biosynthesis,160,216,379,38,44,12.0,0.217,0.983,0.972,0.929,0.915,0.944,0.947,0.024
+Lipid metabolism,50,100,489,45,51,14.0,0.174,0.983,0.964,0.922,0.904,0.94,0.945,0.027
+Other KEGG/cellular,58,116,481,38,44,62.0,0.132,0.978,0.953,0.9,0.871,0.931,0.919,0.027
+Other AraCyc,47,94,492,39,45,12.0,0.217,0.978,0.968,0.891,0.833,0.957,0.974,0.022
+Cofactor/vitamin metabolism,29,58,510,45,51,15.0,0.138,0.971,0.926,0.867,0.839,0.897,0.949,0.023
+Degradation/catabolism,76,152,463,46,52,11.0,0.166,0.97,0.943,0.886,0.904,0.868,0.963,0.02
+Energy metabolism,15,30,524,44,50,39.0,0.139,0.969,0.942,0.848,0.778,0.933,0.947,0.031

@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 from itertools import combinations
 from pathlib import Path
 from typing import Dict, Iterable, List, Sequence, Set
@@ -30,7 +31,7 @@ import pandas as pd
 
 
 def load_json(path: Path):
-    """Read and parse a JSON file."""
+    """Read and parse a JSON file (used for per-seed reproducibility artifacts)."""
     with path.open("r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -45,9 +46,14 @@ def load_go_names(repo: Path) -> Dict[str, str]:
 
 
 def selected_terms_by_seed(repro_root: Path) -> Dict[int, List[str]]:
-    """Load selected GO terms for each seed from multiseed reproducibility artifacts."""
+    """Collect which GO features were selected under each random seed.
+
+    Each seed's mutual-information feature selection may pick a different
+    GO subset; this function gathers them so we can measure overlap.
+    """
     data: Dict[int, List[str]] = {}
     for path in sorted(repro_root.glob("seed_*/selected_go_terms.json")):
+        # Directory name encodes the seed (e.g. seed_1, seed_2, ...)
         seed_text = path.parent.name.replace("seed_", "")
         try:
             seed = int(seed_text)
@@ -61,7 +67,7 @@ def selected_terms_by_seed(repro_root: Path) -> Dict[int, List[str]]:
 
 
 def jaccard(a: Set[str], b: Set[str]) -> float:
-    """Jaccard similarity between two sets; returns 1.0 for two empty sets."""
+    """Jaccard similarity; convention: two empty sets are identical (1.0)."""
     union = len(a | b)
     return len(a & b) / union if union else 1.0
 
@@ -78,10 +84,13 @@ def stability_tables(repo: Path, seed_terms: Dict[int, List[str]]) -> tuple[pd.D
     go_names = load_go_names(repo)
     seeds = sorted(seed_terms)
     n = len(seeds)
+    # Pool every GO term selected by at least one seed
     all_terms = sorted(set().union(*(set(v) for v in seed_terms.values())))
+    # Per-term frequency table: how often each GO term survives feature selection
     rows = []
     for term in all_terms:
         selected_in = [seed for seed in seeds if term in set(seed_terms[seed])]
+        # Stability class thresholds follow thesis convention (Table 4)
         rows.append(
             {
                 "go_term": term,
@@ -100,6 +109,7 @@ def stability_tables(repo: Path, seed_terms: Dict[int, List[str]]) -> tuple[pd.D
         ["selection_frequency", "n_selected", "go_term"], ascending=[False, False, True]
     )
 
+    # Pairwise Jaccard between every seed-pair measures overall set agreement
     pair_rows = []
     for s1, s2 in combinations(seeds, 2):
         a, b = set(seed_terms[s1]), set(seed_terms[s2])
@@ -125,12 +135,17 @@ def stability_tables(repo: Path, seed_terms: Dict[int, List[str]]) -> tuple[pd.D
 
 
 def performance_stability(repo: Path) -> pd.DataFrame:
-    """Compute Pearson correlation of GO count / dimensionality with AUROC across seeds."""
+    """Test whether varying GO feature counts actually hurt performance.
+
+    If Pearson r is near zero, the model is robust to feature-set changes
+    across seeds -- a key thesis finding.
+    """
     path = repo / "tables" / "multiseed" / "multiseed_runs.csv"
     if not path.exists():
         raise FileNotFoundError(path)
     runs = pd.read_csv(path)
     xgb = runs[runs["model"] == "XGBoost"].copy()
+    # Correlate both raw GO count and total dimensionality with AUROC
     corr_cols = ["n_go_selected", "D"]
     rows = []
     for col in corr_cols:
@@ -145,7 +160,11 @@ def performance_stability(repo: Path) -> pd.DataFrame:
 
 
 def candidate_uncertainty(repo: Path) -> pd.DataFrame:
-    """Summarize candidate pathway scores across seeds (mean, SD, min, max)."""
+    """Quantify how much candidate pathway scores fluctuate across 20 seeds.
+
+    Candidates whose score stays above 0.5 across all seeds are the most
+    confidently pathway-like; high SD flags seed-sensitive predictions.
+    """
     path = repo / "tables" / "multiseed" / "multiseed_candidate_results.csv"
     if not path.exists():
         raise FileNotFoundError(path)
@@ -171,9 +190,13 @@ def candidate_uncertainty(repo: Path) -> pd.DataFrame:
 
 
 def plot_go_stability(repo: Path, freq_df: pd.DataFrame, summary: dict) -> None:
-    """Bar chart of the top-30 most frequently selected GO features across seeds."""
+    """Bar chart of the top-30 most frequently selected GO features across seeds.
+
+    Visualises which GO terms form the stable 'core' feature set (Fig. 8).
+    """
     fig_dir = repo / "figures"
     fig_dir.mkdir(parents=True, exist_ok=True)
+    # Reverse order so highest-frequency terms appear at top of horizontal bar chart
     top = freq_df.head(30).iloc[::-1]
     labels = [f"{row.go_term} {row['name'][:36]}".strip() for _, row in top.iterrows()]
     plt.figure(figsize=(10, 8))
@@ -185,15 +208,20 @@ def plot_go_stability(repo: Path, freq_df: pd.DataFrame, summary: dict) -> None:
     plt.tight_layout()
     plt.savefig(fig_dir / "fig8_go_selection_stability.png", dpi=300)
     plt.savefig(fig_dir / "fig8_go_selection_stability.pdf")
+    plt.savefig(fig_dir / "fig_go_selection_stability.png", dpi=300)
     plt.close()
 
 
 def plot_score_uncertainty(repo: Path) -> None:
-    """Box plot of candidate pathway scores across 20 seeds."""
+    """Box plot of candidate pathway scores across 20 seeds (Fig. 9).
+
+    The 0.5 threshold line separates pathway-like from non-pathway predictions.
+    """
     fig_dir = repo / "figures"
     fig_dir.mkdir(parents=True, exist_ok=True)
     cand = pd.read_csv(repo / "tables" / "multiseed" / "multiseed_candidate_results.csv")
     order = sorted(cand["candidate"].unique())
+    # One distribution per candidate for the box plot
     data = [cand.loc[cand["candidate"] == c, "score"].values for c in order]
     plt.figure(figsize=(7, 4.5))
     plt.boxplot(data, tick_labels=order, showmeans=True)
@@ -204,11 +232,16 @@ def plot_score_uncertainty(repo: Path) -> None:
     plt.tight_layout()
     plt.savefig(fig_dir / "fig9_candidate_score_uncertainty.png", dpi=300)
     plt.savefig(fig_dir / "fig9_candidate_score_uncertainty.pdf")
+    plt.savefig(fig_dir / "fig_candidate_score_uncertainty.png", dpi=300)
     plt.close()
 
 
 def plot_performance_vs_dimension(repo: Path) -> None:
-    """Scatter plot of selected GO count vs test AUROC with linear fit."""
+    """Scatter: selected GO count vs test AUROC with linear fit (Fig. 10).
+
+    A flat regression line demonstrates the model is insensitive to the
+    exact number of GO features retained by mutual-information selection.
+    """
     fig_dir = repo / "figures"
     fig_dir.mkdir(parents=True, exist_ok=True)
     runs = pd.read_csv(repo / "tables" / "multiseed" / "multiseed_runs.csv")
@@ -228,6 +261,7 @@ def plot_performance_vs_dimension(repo: Path) -> None:
 
 
 def main() -> None:
+    """Orchestrate all stability analyses and write thesis-ready outputs."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=Path, default=Path("."), help="PathwayML-Ath repository root")
     args = parser.parse_args()
@@ -235,22 +269,42 @@ def main() -> None:
     tables = repo / "tables"
     tables.mkdir(parents=True, exist_ok=True)
 
+    # --- Collect per-seed GO selections and compute stability metrics ---
     seed_terms = selected_terms_by_seed(repo / "tables" / "multiseed" / "reproducibility")
     freq_df, pair_df, summary = stability_tables(repo, seed_terms)
     perf_corr = performance_stability(repo)
     cand_summary = candidate_uncertainty(repo)
 
+    # --- Write detailed CSV outputs for downstream analysis ---
     freq_df.to_csv(tables / "go_selection_stability.csv", index=False)
+    freq_df.to_csv(tables / "go_selection_frequency.csv", index=False)
     pair_df.to_csv(tables / "go_selection_pairwise_jaccard.csv", index=False)
     perf_corr.to_csv(tables / "go_count_performance_correlation.csv", index=False)
     cand_summary.to_csv(tables / "candidate_uncertainty_summary.csv", index=False)
+    cand_summary.to_csv(tables / "table8_candidate_scoring.csv", index=False)
+    # One-row paper-facing summary of GO feature-selection stability (Table 4).
+    xgb_corr = perf_corr.loc[perf_corr["metric"] == "n_go_selected"].iloc[0]
+    table4 = pd.DataFrame([
+        {
+            **summary,
+            "pearson_corr_selected_go_count_with_test_auroc": float(xgb_corr["pearson_corr_with_test_auroc"]),
+            "pearson_corr_selected_go_count_with_cv_auroc": float(xgb_corr["pearson_corr_with_cv_auroc"]),
+        }
+    ])
+    table4.to_csv(tables / "table4_go_selection_stability.csv", index=False)
     (tables / "go_selection_stability_summary.json").write_text(
         json.dumps(summary, indent=2), encoding="utf-8"
     )
 
+    # --- Generate thesis figures (Figs. 8-10) ---
     plot_go_stability(repo, freq_df, summary)
     plot_score_uncertainty(repo)
     plot_performance_vs_dimension(repo)
+    # Keep a version-neutral alias so other scripts can reference it stably
+    src = repo / "figures" / "fig10_performance_vs_go_count.png"
+    dst = repo / "figures" / "fig_performance_vs_go_count.png"
+    if src.exists():
+        shutil.copyfile(src, dst)
 
     print("Wrote stability outputs:")
     for rel in [

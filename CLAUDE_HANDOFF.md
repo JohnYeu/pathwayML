@@ -61,7 +61,7 @@ Primary results:
 
 ```text
 tables/results_no_embedding.json
-tables/table1_performance.csv
+tables/table1_seed42_performance.csv
 tables/table2_shap_importance.csv
 tables/table3_ablation.csv
 tables/candidate_results.csv

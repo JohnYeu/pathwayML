@@ -43,7 +43,7 @@ import numpy as np
 import pandas as pd
 import shap
 import xgboost as xgb
-from scipy.stats import hypergeom
+from scipy.stats import hypergeom, ks_2samp
 from sklearn.base import clone
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import VarianceThreshold, mutual_info_classif
@@ -75,8 +75,15 @@ DATA_DIR = Path("data")
 FIG_DIR = Path("figures")
 TABLE_DIR = Path("tables")
 REPRO_DIR = TABLE_DIR / "reproducibility"
+OUTPUT_DIR = Path("outputs")
 # Cap pairwise Jaccard computation to at most this many genes for speed
 MAX_JACCARD_GENES = 15
+PRIMARY_NEGATIVE_TYPES = [
+    "empirical_size_matched_random",
+    "full_replacement_shuffled",
+    "corrupted_pathway",
+    "cross_pathway_mixture",
+]
 
 
 @dataclass
@@ -95,7 +102,7 @@ class DataBundle:
 
 def ensure_dirs() -> None:
     """Create output directories if they don't exist."""
-    for path in [FIG_DIR, TABLE_DIR, REPRO_DIR]:
+    for path in [FIG_DIR, TABLE_DIR, REPRO_DIR, OUTPUT_DIR]:
         path.mkdir(parents=True, exist_ok=True)
 
 
@@ -133,6 +140,10 @@ def rng_choice_list(
         return [values[int(idx)]]
     return [values[int(i)] for i in idx]
 
+
+# ---------------------------------------------------------------------------
+# Data loading
+# ---------------------------------------------------------------------------
 
 def load_data() -> DataBundle:
     """Load gene-GO annotations (TAIR GAF), KEGG, and AraCyc pathway databases.
@@ -217,6 +228,10 @@ def load_data() -> DataBundle:
     )
 
 
+# ---------------------------------------------------------------------------
+# Feature engineering: GO frequency, Jaccard statistics, size
+# ---------------------------------------------------------------------------
+
 def go_frequency(gene_set: Iterable[str], go_terms: Sequence[str], gene_go: Dict[str, set]) -> np.ndarray:
     """Compute the fraction of genes in gene_set annotated with each GO term."""
     genes = sorted(set(gene_set))
@@ -270,175 +285,570 @@ def pathway_jaccard_mean(
     return float(jaccard_stats(gene_set, gene_go, salt=salt, seed=seed)[0])
 
 
-def co_annotation_cluster(
-    seed_gene: str,
-    target_size: int,
-    gene_go: Dict[str, set],
-    pool: Sequence[str],
-    rng: np.random.Generator,
-    noise_frac: float = 0.5,
-) -> set:
-    """Build a co-annotation cluster around a seed gene for hard negative generation.
+# ---------------------------------------------------------------------------
+# Pathway metadata and family assignment
+# ---------------------------------------------------------------------------
 
-    Selects genes sharing GO terms with seed_gene (coherent core), then pads
-    with random noise genes to reach target_size. This produces negatives that
-    resemble real pathways in GO coherence but are not curated.
-    """
-    seed_terms = gene_go.get(seed_gene, set())
-    if not seed_terms:
-        return set(rng_choice_list(rng, pool, target_size, replace=False))
-
-    sampled_pool = rng_choice_list(rng, pool, min(500, len(pool)), replace=False)
-    candidates: List[Tuple[str, float]] = []
-    for gene in sampled_pool:
-        if gene == seed_gene:
-            continue
-        terms = gene_go.get(gene, set())
-        union = len(seed_terms | terms)
-        if union:
-            score = len(seed_terms & terms) / union
-            if score > 0:
-                candidates.append((gene, score))
-    candidates.sort(key=lambda x: (-x[1], x[0]))
-
-    n_coherent = max(2, int(target_size * (1.0 - noise_frac)))
-    cluster = {seed_gene}
-    for gene, _score in candidates:
-        cluster.add(gene)
-        if len(cluster) >= n_coherent + 1:
-            break
-
-    n_noise = max(0, target_size - len(cluster))
-    noise_pool = [gene for gene in pool if gene not in cluster]
-    cluster.update(rng_choice_list(rng, noise_pool, n_noise, replace=False))
-    return cluster
+def source_database(pathway_id: str) -> str:
+    """Return the source database for a curated pathway ID."""
+    return "AraCyc" if pathway_id.startswith("AC_") else "KEGG"
 
 
-def build_samples(data: DataBundle, seed: int) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
-    """Construct the full dataset: curated pathways (positives) + 4 types of hard negatives.
+def contains_any(text: str, words: Sequence[str]) -> bool:
+    """Check whether any keyword appears as a substring in text (case-sensitive)."""
+    return any(word in text for word in words)
 
-    Negative types (each ~25% of negatives):
-      A) jaccard_matched: random gene sets with GO-Jaccard >= P25 of real pathways
-      B) co_annotation: coherent clusters built around a seed gene + noise
-      C) chimera: gene subsets drawn from 2-3 real pathways (cross-pathway hybrids)
-      D) shuffled: real pathway with 40-60% of genes replaced by random background
-    """
-    rng = np.random.default_rng(seed)
-    pathway_ids = sorted(data.pathways)
-    pathway_sets = [data.pathways[pid] for pid in pathway_ids]
-    n_pos = len(pathway_sets)
-    n_neg = n_pos * 2       # 2:1 negative-to-positive ratio
-    n_per_type = n_neg // 4  # roughly equal split across 4 negative types
-    n_remainder = n_neg - 4 * n_per_type
 
-    # Compute Jaccard coherence of real pathways to set the acceptance threshold
-    real_jaccards = [
-        pathway_jaccard_mean(genes, data.gene_go, salt=f"real:{pid}", seed=seed)
-        for pid, genes in zip(pathway_ids, pathway_sets)
-    ]
-    jac_p25 = float(np.percentile(real_jaccards, 25))
-    # Pool of well-annotated genes for co-annotation negatives (>= 3 GO terms)
-    bg_annotated = sorted(
-        gene for gene in data.background_genes if len(data.gene_go.get(gene, set())) >= 3
-    )
+def assign_pathway_family(pathway_id: str, pathway_name: str) -> str:
+    """Deterministically assign broad pathway families for metadata and LOFO."""
+    s = f"{pathway_id} {pathway_name}".lower()
+    if contains_any(s, ["degradation", "catabolism", "catabolic", "breakdown", "salvage", "detoxification", "detox"]):
+        return "Degradation/catabolism"
+    if contains_any(s, ["alanine", "arginine", "asparagine", "aspartate", "aspartic", "cysteine", "glutamate", "glutamic", "glutamine", "glycine", "histidine", "isoleucine", "leucine", "lysine", "methionine", "phenylalanine", "proline", "serine", "threonine", "tryptophan", "tyrosine", "valine", "amino acid", "branched-chain"]):
+        return "Amino acid metabolism"
+    if contains_any(s, ["lipid", "fatty", "glycerol", "glycerolipid", "glycerophospholipid", "sphingolipid", "cutin", "suberin", "wax", "sterol", "steroid", "linolenic", "linoleic", "phospholipid", "triacylglycerol", "acyl-lipid"]):
+        return "Lipid metabolism"
+    if contains_any(s, ["carbohydrate", "starch", "sucrose", "cellulose", "glycolysis", "gluconeogenesis", "glucose", "fructose", "galactose", "mannose", "xylose", "pentose", "glycan", "pectin", "hemicellulose", "cell wall", "trehalose"]):
+        return "Carbohydrate metabolism"
+    if contains_any(s, ["photosynthesis", "oxidative phosphorylation", "carbon fixation", "nitrogen metabolism", "sulfur metabolism", "methane", "atp", "respiration", "electron transport", "calvin", "photorespiration"]):
+        return "Energy metabolism"
+    if contains_any(s, ["cofactor", "vitamin", "folate", "riboflavin", "thiamine", "biotin", "porphyrin", "chlorophyll", "carotenoid", "heme", "tetrahydrofolate", "nicotinate", "pantothenate"]):
+        return "Cofactor/vitamin metabolism"
+    if contains_any(s, ["signaling", "signalling", "signal", "hormone", "auxin", "ethylene", "abscisic", "jasmonic", "salicylic", "brassinosteroid", "circadian", "mapk", "response", "transduction"]):
+        return "Signalling/regulatory"
+    if contains_any(s, ["flavonoid", "phenylpropanoid", "glucosinolate", "terpenoid", "alkaloid", "anthocyanin", "lignin", "isoprenoid", "phytoalexin", "secondary metabolite", "stilbenoid", "benzoxazinoid", "coumarin", "betalain"]) or "biosynth" in s or "biosynthesis" in s or "synthesis" in s:
+        return "Specialized/other biosynthesis"
+    if pathway_id.startswith("AC_"):
+        return "Other AraCyc"
+    return "Other KEGG/cellular"
 
-    negatives: List[Dict[str, Any]] = []
 
-    # --- Type A: Jaccard-matched random negatives ---
-    attempts = 0
-    while len([n for n in negatives if n["type"] == "jaccard_matched"]) < n_per_type:
-        attempts += 1
-        size = int(rng.choice(data.pathway_sizes))
-        genes = set(rng_choice_list(rng, data.background_genes, size, replace=False))
-        jm = pathway_jaccard_mean(genes, data.gene_go, salt=f"negA:{attempts}", seed=seed)
-        if jm >= jac_p25 or attempts >= n_per_type * 20:
-            negatives.append(
-                {
-                    "id": f"NEG_A_{len(negatives):04d}",
-                    "type": "jaccard_matched",
-                    "genes": sorted(genes),
-                    "jaccard_mean": jm,
-                }
-            )
-
-    # --- Type B: Co-annotation cluster negatives ---
-    for i in range(n_per_type):
-        seed_gene = rng_choice_list(rng, bg_annotated, 1, replace=False)[0]
-        size = min(int(rng.choice(data.pathway_sizes)), 50)
-        genes = co_annotation_cluster(seed_gene, size, data.gene_go, bg_annotated, rng)
-        negatives.append(
-            {
-                "id": f"NEG_B_{i:04d}",
-                "type": "co_annotation",
-                "seed_gene": seed_gene,
-                "genes": sorted(genes),
-            }
-        )
-
-    # --- Type C: Chimeric cross-pathway negatives ---
-    for i in range(n_per_type):
-        n_pathways = int(rng.choice([2, 3]))
-        chosen_idx = rng.choice(len(pathway_sets), size=n_pathways, replace=False)
-        target_size = int(rng.choice(data.pathway_sizes))
-        per_pathway = max(2, target_size // n_pathways)
-        genes: set = set()
-        source_ids: List[str] = []
-        for idx in chosen_idx:
-            source_ids.append(pathway_ids[int(idx)])
-            genes.update(rng_choice_list(rng, sorted(pathway_sets[int(idx)]), per_pathway, replace=False))
-        negatives.append(
-            {
-                "id": f"NEG_C_{i:04d}",
-                "type": "chimera",
-                "source_pathways": sorted(source_ids),
-                "genes": sorted(genes),
-            }
-        )
-
-    # --- Type D: Shuffled pathway negatives (partial gene replacement) ---
-    for i in range(n_per_type + n_remainder):
-        idx = int(rng.integers(0, len(pathway_sets)))
-        source_genes = sorted(pathway_sets[idx])
-        frac = float(rng.uniform(0.4, 0.6))
-        n_replace = max(1, int(len(source_genes) * frac))
-        keep = rng_choice_list(rng, source_genes, len(source_genes) - n_replace, replace=False)
-        add = rng_choice_list(rng, data.background_genes, n_replace, replace=False)
-        negatives.append(
-            {
-                "id": f"NEG_D_{i:04d}",
-                "type": "shuffled",
-                "source_pathway": pathway_ids[idx],
-                "replace_fraction": frac,
-                "genes": sorted(set(keep + add)),
-            }
-        )
-
-    records: List[Dict[str, Any]] = []
-    for pid in pathway_ids:
+def curated_pathway_records(data: DataBundle) -> List[Dict[str, Any]]:
+    """Return positive pathway records with source/family metadata."""
+    records = []
+    for pid in sorted(data.pathways):
+        name = data.pathway_names.get(pid, pid)
         records.append(
             {
                 "id": pid,
                 "label": 1,
                 "type": "curated_pathway",
-                "name": data.pathway_names.get(pid, pid),
+                "negative_type": "NA",
+                "name": name,
                 "genes": sorted(data.pathways[pid]),
+                "source_database": source_database(pid),
+                "source_family": assign_pathway_family(pid, name),
+                "split": "unsplit",
             }
         )
-    for neg in negatives:
-        rec = dict(neg)
-        rec["label"] = 0
-        records.append(rec)
+    return records
 
-    meta = {
-        "n_pos": n_pos,
-        "n_neg": len(negatives),
-        "negative_counts": pd.Series([n["type"] for n in negatives]).value_counts().to_dict(),
-        "real_pathway_jaccard_median": float(np.median(real_jaccards)),
-        "real_pathway_jaccard_p25": jac_p25,
-        "jaccard_matched_attempts": attempts,
+
+def pathway_family_table(data: DataBundle) -> pd.DataFrame:
+    """Canonical pathway-family assignment table used by all LOFO analyses.
+
+    Keeping the family mapping in one place prevents different scripts from
+    silently grouping the same pathway into different held-out families.
+    """
+    rows = []
+    for pid, genes in data.pathways.items():
+        name = data.pathway_names.get(pid, pid)
+        rows.append(
+            {
+                "pathway_id": pid,
+                "pathway_name": name,
+                "family": assign_pathway_family(pid, name),
+                "source": source_database(pid),
+                "n_genes": len(genes),
+                "jaccard_mean": pathway_jaccard_mean(
+                    genes,
+                    data.gene_go,
+                    salt=f"fam:{pid}",
+                    seed=DEFAULT_REFERENCE_SEED,
+                ),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def record_source_families(record: Dict[str, Any]) -> set[str]:
+    """Return all pathway families recorded as sources for a sample/decoy."""
+    families = set()
+    for key in ("source_family", "source_family_1", "source_family_2", "source_family_3"):
+        value = record.get(key)
+        if value and str(value) != "NA":
+            families.add(str(value))
+    return families
+
+
+def record_uses_source_family(record: Dict[str, Any], family: str) -> bool:
+    """Whether a negative sample was generated from a pathway in `family`."""
+    return family in record_source_families(record)
+
+
+# ---------------------------------------------------------------------------
+# Synthetic negative (decoy) generation
+# ---------------------------------------------------------------------------
+
+def overlap_coefficient(a: Iterable[str], b: Iterable[str]) -> float:
+    """Overlap coefficient len(A & B) / min(len(A), len(B))."""
+    set_a, set_b = set(a), set(b)
+    denom = min(len(set_a), len(set_b))
+    return float(len(set_a & set_b) / denom) if denom else 0.0
+
+
+def closest_curated_overlap(genes: Iterable[str], curated_records: Sequence[Dict[str, Any]]) -> Tuple[float, str]:
+    """Return max overlap coefficient and closest curated pathway ID."""
+    gene_set = set(genes)
+    best_overlap = 0.0
+    best_id = ""
+    for record in curated_records:
+        ov = overlap_coefficient(gene_set, record["genes"])
+        if ov > best_overlap:
+            best_overlap = ov
+            best_id = str(record["id"])
+    return best_overlap, best_id
+
+
+def split_counts(total: int, n_parts: int) -> List[int]:
+    """Split total into n_parts approximately equal integer counts."""
+    base, remainder = divmod(int(total), int(n_parts))
+    return [base + (1 if i < remainder else 0) for i in range(n_parts)]
+
+
+def empty_negative_record(sample_id: str, negative_type: str, seed: int, split: str) -> Dict[str, Any]:
+    """Base negative metadata row with NA defaults for non-applicable fields."""
+    return {
+        "id": sample_id,
+        "sample_id": sample_id,
+        "label": 0,
+        "type": negative_type,
+        "negative_type": negative_type,
+        "name": sample_id,
+        "genes": [],
+        "gene_ids": "",
+        "target_size": "NA",
+        "actual_size": "NA",
+        "seed": int(seed),
+        "generation_seed": int(seed),
+        "split": split,
+        "source_pathway_id": "NA",
+        "source_database": "NA",
+        "source_family": "NA",
+        "source_pathway_id_1": "NA",
+        "source_pathway_id_2": "NA",
+        "source_pathway_id_3": "NA",
+        "source_family_1": "NA",
+        "source_family_2": "NA",
+        "source_family_3": "NA",
+        "kept_fraction": "NA",
+        "replaced_fraction": "NA",
+        "replacement_fraction": "NA",
+        "n_kept": "NA",
+        "n_replaced": "NA",
+        "random_fill_count": 0,
+        "max_overlap_with_curated": "NA",
+        "closest_curated_pathway": "NA",
     }
+
+
+def finalize_negative_record(
+    record: Dict[str, Any],
+    genes: Iterable[str],
+    curated_records: Sequence[Dict[str, Any]],
+) -> Dict[str, Any]:
+    """Attach sorted genes, size, and closest-curated overlap metadata."""
+    gene_list = sorted(set(genes))
+    max_overlap, closest = closest_curated_overlap(gene_list, curated_records)
+    record["genes"] = gene_list
+    record["gene_ids"] = ",".join(gene_list)
+    record["actual_size"] = len(gene_list)
+    record["max_overlap_with_curated"] = float(max_overlap)
+    record["closest_curated_pathway"] = closest
+    return record
+
+
+def valid_decoy(
+    genes: Iterable[str],
+    curated_records: Sequence[Dict[str, Any]],
+    max_any_overlap: float = 0.80,
+    min_size: int = 5,
+) -> bool:
+    """Return True if a generated decoy passes size and curated-overlap filters."""
+    gene_set = set(genes)
+    if len(gene_set) < min_size:
+        return False
+    max_overlap, _closest = closest_curated_overlap(gene_set, curated_records)
+    return max_overlap <= max_any_overlap
+
+
+def generate_empirical_size_matched_random(
+    data: DataBundle,
+    source_records: Sequence[Dict[str, Any]],
+    curated_records: Sequence[Dict[str, Any]],
+    rng: np.random.Generator,
+    sample_id: str,
+    seed: int,
+    split: str,
+    max_attempts: int = 2000,
+) -> Dict[str, Any]:
+    """Generate a size-matched random background decoy.
+
+    Target sizes are drawn from the empirical positive pathway size
+    distribution for the same split, ensuring no systematic size bias
+    between positives and this negative class.
+    """
+    sizes = [len(record["genes"]) for record in source_records]
+    for _attempt in range(max_attempts):
+        target_size = int(rng.choice(sizes))
+        genes = set(rng_choice_list(rng, data.background_genes, target_size, replace=False))
+        if valid_decoy(genes, curated_records):
+            rec = empty_negative_record(sample_id, "empirical_size_matched_random", seed, split)
+            rec["target_size"] = target_size
+            return finalize_negative_record(rec, genes, curated_records)
+    raise RuntimeError(f"Could not generate empirical_size_matched_random after {max_attempts} attempts")
+
+
+def generate_full_replacement_shuffled(
+    data: DataBundle,
+    source_records: Sequence[Dict[str, Any]],
+    curated_records: Sequence[Dict[str, Any]],
+    rng: np.random.Generator,
+    sample_id: str,
+    seed: int,
+    split: str,
+    max_attempts: int = 2000,
+) -> Dict[str, Any]:
+    """Generate a size-preserving, full-replacement pathway shuffle.
+
+    Picks a source pathway's size but replaces ALL its genes with random
+    background genes. This preserves the size distribution while removing
+    all biological coherence — the strongest structural null hypothesis.
+    """
+    for _attempt in range(max_attempts):
+        source = source_records[int(rng.integers(0, len(source_records)))]
+        source_genes = set(source["genes"])
+        target_size = len(source_genes)
+        # Exclude source genes to ensure zero overlap with the original pathway
+        replacement_pool = [gene for gene in data.background_genes if gene not in source_genes]
+        exclusion_feasible = len(replacement_pool) >= target_size
+        pool = replacement_pool if exclusion_feasible else data.background_genes
+        genes = set(rng_choice_list(rng, pool, target_size, replace=False))
+        if exclusion_feasible and genes & source_genes:
+            continue
+        if valid_decoy(genes, curated_records):
+            rec = empty_negative_record(sample_id, "full_replacement_shuffled", seed, split)
+            rec.update(
+                {
+                    "source_pathway_id": source["id"],
+                    "source_database": source["source_database"],
+                    "source_family": source["source_family"],
+                    "target_size": target_size,
+                    "replacement_fraction": 1.0,
+                    "kept_fraction": 0.0,
+                    "n_kept": 0,
+                    "n_replaced": target_size,
+                }
+            )
+            return finalize_negative_record(rec, genes, curated_records)
+    raise RuntimeError(f"Could not generate full_replacement_shuffled after {max_attempts} attempts")
+
+
+def generate_corrupted_pathway(
+    data: DataBundle,
+    source_records: Sequence[Dict[str, Any]],
+    curated_records: Sequence[Dict[str, Any]],
+    rng: np.random.Generator,
+    sample_id: str,
+    seed: int,
+    split: str,
+    max_attempts: int = 2000,
+) -> Dict[str, Any]:
+    """Generate a decoy with a small true pathway core plus random contamination.
+
+    Keeps 20-50% of a real pathway's genes and replaces the rest with random
+    background genes. The 0.60 self-overlap threshold ensures the result is
+    sufficiently different from the source to be a meaningful negative.
+    """
+    for _attempt in range(max_attempts):
+        source = source_records[int(rng.integers(0, len(source_records)))]
+        source_genes = sorted(set(source["genes"]))
+        target_size = len(source_genes)
+        # Keep 20-50% of original genes — enough to retain partial signal
+        # but too little to be a true pathway fragment
+        kept_fraction = float(rng.uniform(0.20, 0.50))
+        n_keep = int(round(kept_fraction * target_size))
+        n_keep = max(1, min(n_keep, target_size - 1 if target_size > 1 else 1))
+        kept = set(rng_choice_list(rng, source_genes, n_keep, replace=False))
+        replacement_pool = [gene for gene in data.background_genes if gene not in source_genes and gene not in kept]
+        n_replace = target_size - len(kept)
+        if len(replacement_pool) < n_replace:
+            continue
+        genes = set(kept)
+        genes.update(rng_choice_list(rng, replacement_pool, n_replace, replace=False))
+        if len(genes) != target_size:
+            continue
+        # Reject if the result still looks too similar to the source
+        if overlap_coefficient(genes, source_genes) > 0.60:
+            continue
+        if valid_decoy(genes, curated_records):
+            rec = empty_negative_record(sample_id, "corrupted_pathway", seed, split)
+            rec.update(
+                {
+                    "source_pathway_id": source["id"],
+                    "source_database": source["source_database"],
+                    "source_family": source["source_family"],
+                    "target_size": target_size,
+                    "kept_fraction": float(len(kept) / target_size),
+                    "replaced_fraction": float(n_replace / target_size),
+                    "replacement_fraction": float(n_replace / target_size),
+                    "n_kept": len(kept),
+                    "n_replaced": n_replace,
+                }
+            )
+            return finalize_negative_record(rec, genes, curated_records)
+    raise RuntimeError(f"Could not generate corrupted_pathway after {max_attempts} attempts")
+
+
+def generate_cross_pathway_mixture(
+    data: DataBundle,
+    source_records: Sequence[Dict[str, Any]],
+    curated_records: Sequence[Dict[str, Any]],
+    rng: np.random.Generator,
+    sample_id: str,
+    seed: int,
+    split: str,
+    max_attempts: int = 4000,
+) -> Dict[str, Any]:
+    """Generate a heterogeneous cross-family pathway mixture.
+
+    Draws genes from 2-3 pathways in different biological families, ensuring
+    no single source contributes more than 60% of the final set. This creates
+    plausible-looking decoys with pathway-like GO statistics but incoherent
+    biological function.
+    """
+    sizes = [len(record["genes"]) for record in source_records]
+    by_family: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+    for record in source_records:
+        by_family[str(record["source_family"])].append(record)
+    families = sorted(by_family)
+
+    for _attempt in range(max_attempts):
+        target_size = int(rng.choice(sizes))
+        if len(families) >= 2:
+            fam1, fam2 = rng.choice(families, size=2, replace=False)
+            p1 = by_family[str(fam1)][int(rng.integers(0, len(by_family[str(fam1)])))]
+            p2 = by_family[str(fam2)][int(rng.integers(0, len(by_family[str(fam2)])))]
+        else:
+            p1, p2 = rng.choice(source_records, size=2, replace=False)
+
+        n1 = max(1, target_size // 2)
+        n2 = max(1, target_size - n1)
+        genes: set = set()
+        contrib: Dict[str, int] = {}
+        pick1 = set(rng_choice_list(rng, p1["genes"], min(n1, len(p1["genes"])), replace=False))
+        genes.update(pick1)
+        contrib[str(p1["id"])] = len(pick1)
+        pool2 = [gene for gene in p2["genes"] if gene not in genes]
+        pick2 = set(rng_choice_list(rng, pool2, min(n2, len(pool2)), replace=False))
+        genes.update(pick2)
+        contrib[str(p2["id"])] = len(pick2)
+
+        p3: Dict[str, Any] | None = None
+        if len(genes) < target_size and len(families) >= 3:
+            remaining_families = [fam for fam in families if fam not in {p1["source_family"], p2["source_family"]}]
+            if remaining_families:
+                fam3 = str(rng.choice(remaining_families))
+                p3 = by_family[fam3][int(rng.integers(0, len(by_family[fam3])))]
+                pool3 = [gene for gene in p3["genes"] if gene not in genes]
+                pick3 = set(rng_choice_list(rng, pool3, min(target_size - len(genes), len(pool3)), replace=False))
+                genes.update(pick3)
+                contrib[str(p3["id"])] = len(pick3)
+
+        random_fill_count = 0
+        if len(genes) < target_size:
+            fill_pool = [gene for gene in data.background_genes if gene not in genes]
+            fill = set(rng_choice_list(rng, fill_pool, target_size - len(genes), replace=False))
+            genes.update(fill)
+            random_fill_count = len(fill)
+
+        if len(genes) != target_size:
+            continue
+        # Reject if one source dominates — defeats the purpose of mixing
+        if contrib and max(contrib.values()) / target_size > 0.60:
+            continue
+        if valid_decoy(genes, curated_records):
+            rec = empty_negative_record(sample_id, "cross_pathway_mixture", seed, split)
+            rec.update(
+                {
+                    "source_pathway_id_1": p1["id"],
+                    "source_pathway_id_2": p2["id"],
+                    "source_pathway_id_3": p3["id"] if p3 else "NA",
+                    "source_family_1": p1["source_family"],
+                    "source_family_2": p2["source_family"],
+                    "source_family_3": p3["source_family"] if p3 else "NA",
+                    "target_size": target_size,
+                    "random_fill_count": random_fill_count,
+                    "contribution_fraction_1": float(contrib.get(str(p1["id"]), 0) / target_size),
+                    "contribution_fraction_2": float(contrib.get(str(p2["id"]), 0) / target_size),
+                    "contribution_fraction_3": float(contrib.get(str(p3["id"]), 0) / target_size) if p3 else "NA",
+                }
+            )
+            return finalize_negative_record(rec, genes, curated_records)
+    raise RuntimeError(f"Could not generate cross_pathway_mixture after {max_attempts} attempts")
+
+
+def generate_negative_records(
+    data: DataBundle,
+    source_records: Sequence[Dict[str, Any]],
+    curated_records: Sequence[Dict[str, Any]],
+    n_neg_total: int,
+    seed: int,
+    split: str,
+    id_prefix: str,
+) -> List[Dict[str, Any]]:
+    """Generate all four primary synthetic negative classes for one split."""
+    if not source_records:
+        raise ValueError("source_records cannot be empty")
+    counts = split_counts(n_neg_total, len(PRIMARY_NEGATIVE_TYPES))
+    rng = np.random.default_rng(seed)
+    generators = {
+        "empirical_size_matched_random": generate_empirical_size_matched_random,
+        "full_replacement_shuffled": generate_full_replacement_shuffled,
+        "corrupted_pathway": generate_corrupted_pathway,
+        "cross_pathway_mixture": generate_cross_pathway_mixture,
+    }
+    records: List[Dict[str, Any]] = []
+    for negative_type, count in zip(PRIMARY_NEGATIVE_TYPES, counts):
+        for i in range(count):
+            sample_id = f"{id_prefix}_{negative_type}_{i:04d}"
+            records.append(
+                generators[negative_type](
+                    data=data,
+                    source_records=source_records,
+                    curated_records=curated_records,
+                    rng=rng,
+                    sample_id=sample_id,
+                    seed=seed,
+                    split=split,
+                )
+            )
+    return records
+
+
+def build_split_samples(
+    data: DataBundle,
+    seed: int,
+    negative_multiplier: int = 2,
+    test_size: float = 0.20,
+) -> Tuple[List[Dict[str, Any]], Dict[str, Any], Dict[str, Any], np.ndarray, np.ndarray]:
+    """Split positives first, then generate split-specific synthetic negatives."""
+    if negative_multiplier < 1:
+        raise ValueError("negative_multiplier must be >= 1")
+
+    positives = curated_pathway_records(data)
+    pos_idx = np.arange(len(positives))
+    train_pos_idx, test_pos_idx = train_test_split(
+        pos_idx,
+        test_size=test_size,
+        random_state=seed,
+        shuffle=True,
+    )
+    train_pos = [deepcopy(positives[int(i)]) for i in train_pos_idx]
+    test_pos = [deepcopy(positives[int(i)]) for i in test_pos_idx]
+    for record in train_pos:
+        record["split"] = "train"
+    for record in test_pos:
+        record["split"] = "test"
+
+    # Seed offsets (+10000 / +20000) ensure train and test negatives are
+    # generated from independent RNG streams, preventing accidental overlap.
+    train_neg = generate_negative_records(
+        data=data,
+        source_records=train_pos,
+        curated_records=positives,
+        n_neg_total=negative_multiplier * len(train_pos),
+        seed=seed + 10_000,
+        split="train",
+        id_prefix=f"TRAIN_NEG_seed{seed}",
+    )
+    test_neg = generate_negative_records(
+        data=data,
+        source_records=test_pos,
+        curated_records=positives,
+        n_neg_total=negative_multiplier * len(test_pos),
+        seed=seed + 20_000,
+        split="test",
+        id_prefix=f"TEST_NEG_seed{seed}",
+    )
+
+    records = train_pos + train_neg + test_pos + test_neg
+    train_idx = np.arange(0, len(train_pos) + len(train_neg), dtype=int)
+    test_idx = np.arange(len(train_idx), len(records), dtype=int)
+    negative_records = train_neg + test_neg
+    real_jaccards = [
+        pathway_jaccard_mean(record["genes"], data.gene_go, salt=f"real:{record['id']}", seed=seed)
+        for record in positives
+    ]
+    neg_type_counts = pd.Series([record["negative_type"] for record in negative_records]).value_counts().to_dict()
+    neg_split_counts = (
+        pd.DataFrame({"split": [record["split"] for record in negative_records], "negative_type": [record["negative_type"] for record in negative_records]})
+        .groupby(["split", "negative_type"])
+        .size()
+        .to_dict()
+    )
+    split_info = {
+        "random_state": seed,
+        "test_size": test_size,
+        "split_protocol": "positive_pathways_split_first_then_generate_split_specific_negatives",
+        "train_ids": [records[int(i)]["id"] for i in train_idx],
+        "test_ids": [records[int(i)]["id"] for i in test_idx],
+        "train_positive_ids": [record["id"] for record in train_pos],
+        "test_positive_ids": [record["id"] for record in test_pos],
+        "train_negative_ids": [record["id"] for record in train_neg],
+        "test_negative_ids": [record["id"] for record in test_neg],
+    }
+    meta = {
+        "n_pos": len(positives),
+        "n_train_pos": len(train_pos),
+        "n_test_pos": len(test_pos),
+        "n_neg": len(negative_records),
+        "n_train_neg": len(train_neg),
+        "n_test_neg": len(test_neg),
+        "negative_multiplier": negative_multiplier,
+        "negative_to_positive_ratio": f"{negative_multiplier}:1",
+        "negative_counts": neg_type_counts,
+        "negative_counts_by_split": {f"{k[0]}::{k[1]}": int(v) for k, v in neg_split_counts.items()},
+        "real_pathway_jaccard_median": float(np.median(real_jaccards)),
+        "negative_scheme": "empirical_size_matched_random__full_replacement_shuffled__corrupted_pathway__cross_pathway_mixture",
+        "negative_type_definitions": {
+            "empirical_size_matched_random": "Uniform background genes with target sizes sampled from the empirical positive pathway size distribution for the same split.",
+            "full_replacement_shuffled": "A source pathway size is preserved but all original genes are replaced by background genes.",
+            "corrupted_pathway": "A small true pathway core (20-50%) is kept and the remaining genes are replaced by random background genes.",
+            "cross_pathway_mixture": "Genes are drawn from two or more different broad pathway families, with no single source contributing more than 60%.",
+        },
+        "pure_partial_training_negatives": False,
+    }
+    return records, meta, split_info, train_idx, test_idx
+
+
+def build_samples(
+    data: DataBundle,
+    seed: int,
+    negative_multiplier: int = 2,
+) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """Compatibility wrapper returning split-aware records and metadata."""
+    records, meta, _split_info, _train_idx, _test_idx = build_split_samples(
+        data=data,
+        seed=seed,
+        negative_multiplier=negative_multiplier,
+    )
     return records, meta
 
+
+# ---------------------------------------------------------------------------
+# GO feature selection (training-only, MI-based)
+# ---------------------------------------------------------------------------
 
 def select_go_terms(
     train_records: Sequence[Dict[str, Any]],
@@ -558,6 +968,10 @@ def build_feature_matrix(
     return np.vstack(rows), feature_names, groups
 
 
+# ---------------------------------------------------------------------------
+# Model training and evaluation
+# ---------------------------------------------------------------------------
+
 def make_models(seed: int) -> Dict[str, Any]:
     """Return the three classifiers used in the main analysis."""
     return {
@@ -664,9 +1078,9 @@ def evaluate_ablation(
         "GO freq only": idx_go,
         "Jaccard only": idx_jac,
         "Size only": idx_size,
-        "Cumul: Size": idx_size,
-        "Cumul: +Jaccard": idx_size + idx_jac,
-        "Cumul: +GO freq": idx_go + idx_jac + idx_size,
+        "GO + Jaccard": idx_go + idx_jac,
+        "GO + Size": idx_go + idx_size,
+        "Jaccard + Size": idx_jac + idx_size,
     }
     rows: List[Dict[str, Any]] = []
     base_model = make_models(seed)["XGBoost"]
@@ -690,6 +1104,9 @@ def evaluate_ablation(
                 "cv_auroc_se": result["cv_auroc_se"],
                 "test_auroc": result["test_auroc"],
                 "test_auprc": result["test_auprc"],
+                "test_f1": result["test_f1"],
+                "test_precision": result["test_precision"],
+                "test_recall": result["test_recall"],
             }
         )
     df = pd.DataFrame(rows)
@@ -697,6 +1114,10 @@ def evaluate_ablation(
     df["delta_vs_full"] = df["test_auroc"] - full
     return df
 
+
+# ---------------------------------------------------------------------------
+# Candidate scoring and boundary probes
+# ---------------------------------------------------------------------------
 
 def construct_candidates(data: DataBundle, candidate_seed: int) -> Dict[str, List[str]]:
     """Build 4 deterministic candidate gene sets for novelty scoring.
@@ -781,10 +1202,11 @@ def score_candidates(
     data: DataBundle,
     seed: int,
 ) -> pd.DataFrame:
-    """Score each candidate gene set with the trained model and assess novelty.
+    """Score each deterministic candidate gene set with the trained model.
 
-    A candidate is 'novel' if: score >= 0.5, max overlap with any pathway < 30%,
-    and no ORA-significant pathway overlap (p_adj < 0.05).
+    The `novel` flag is retained only as a conservative diagnostic column for
+    downstream review. Manuscript text should not treat this model score as
+    standalone evidence of novel pathway discovery.
     """
     rows: List[Dict[str, Any]] = []
     for cid, genes in candidates.items():
@@ -827,6 +1249,107 @@ def score_candidates(
     return pd.DataFrame(rows)
 
 
+def score_boundary_partial_probes(
+    test_records: Sequence[Dict[str, Any]],
+    model: Any,
+    selected_go: Sequence[str],
+    data: DataBundle,
+    seed: int,
+) -> pd.DataFrame:
+    """Score pure partial pathway fragments as boundary probes, not negatives.
+
+    These probes are generated only from held-out test positives and are never
+    included in training or AUROC/AUPRC calculations. A high score is expected
+    for some fragments because they may retain real pathway-like coherence.
+    """
+    # Seed offset +30000 keeps boundary probes independent from train/test
+    # negative generation (+10000/+20000)
+    rng = np.random.default_rng(seed + 30_000)
+    rows: List[Dict[str, Any]] = []
+    for record in test_records:
+        if int(record.get("label", -1)) != 1:
+            continue
+        source_genes = sorted(set(record["genes"]))
+        if len(source_genes) < 5:
+            continue
+        keep_fraction = float(rng.uniform(0.50, 0.80))
+        probe_size = int(round(keep_fraction * len(source_genes)))
+        probe_size = max(5, min(probe_size, len(source_genes)))
+        genes = sorted(rng_choice_list(rng, source_genes, probe_size, replace=False))
+        fv, _names, _groups = build_feature_matrix(
+            [{"id": f"BOUNDARY_{record['id']}", "genes": genes, "label": -1}],
+            selected_go,
+            data,
+            seed=seed,
+        )
+        score = float(model.predict_proba(fv)[0, 1])
+        rows.append(
+            {
+                "seed": seed,
+                "probe_type": "pure_partial_boundary_probe",
+                "source_pathway_id": record["id"],
+                "source_database": record.get("source_database", source_database(str(record["id"]))),
+                "source_family": record.get("source_family", assign_pathway_family(str(record["id"]), str(record.get("name", record["id"])))),
+                "source_size": len(source_genes),
+                "probe_size": len(genes),
+                "keep_fraction": float(len(genes) / len(source_genes)),
+                "gene_ids": ",".join(genes),
+                "model_score": score,
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def summarize_boundary_probes(boundary_df: pd.DataFrame) -> pd.DataFrame:
+    """Summarize boundary probe scores overall and by source family."""
+    if boundary_df.empty:
+        return pd.DataFrame()
+    rows: List[Dict[str, Any]] = []
+    for family, group in [("ALL", boundary_df)] + list(boundary_df.groupby("source_family", sort=True)):
+        scores = group["model_score"].astype(float)
+        rows.append(
+            {
+                "source_family": family,
+                "n_probes": int(len(group)),
+                "mean_score": float(scores.mean()),
+                "sd_score": float(scores.std(ddof=1)) if len(scores) > 1 else 0.0,
+                "median_score": float(scores.median()),
+                "iqr_score": f"{scores.quantile(0.25):.3f}-{scores.quantile(0.75):.3f}",
+                "pct_score_ge_0_5": float((scores >= 0.5).mean() * 100.0),
+                "pct_score_ge_0_7": float((scores >= 0.7).mean() * 100.0),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def plot_boundary_probe_scores(boundary_df: pd.DataFrame) -> None:
+    """Plot boundary-probe score distribution by source family."""
+    if boundary_df.empty:
+        return
+    order = (
+        boundary_df.groupby("source_family")["model_score"]
+        .median()
+        .sort_values(ascending=False)
+        .index
+        .tolist()
+    )
+    data_to_plot = [boundary_df.loc[boundary_df["source_family"] == fam, "model_score"].values for fam in order]
+    plt.figure(figsize=(9, 4.8))
+    plt.boxplot(data_to_plot, labels=order, showfliers=False)
+    plt.axhline(0.5, color="#A0AEC0", linestyle="--", linewidth=1)
+    plt.ylabel("Model score")
+    plt.title("Pure partial pathway boundary probes")
+    plt.xticks(rotation=35, ha="right")
+    plt.tight_layout()
+    plt.savefig(FIG_DIR / "fig_boundary_partial_probe_scores.png", dpi=300)
+    plt.savefig(FIG_DIR / "fig_boundary_partial_probe_scores.pdf")
+    plt.close()
+
+
+# ---------------------------------------------------------------------------
+# I/O helpers and table writing
+# ---------------------------------------------------------------------------
+
 def save_json(path: Path, obj: Any) -> None:
     """Write a Python object to JSON with numpy type coercion."""
     def default(value: Any) -> Any:
@@ -841,6 +1364,88 @@ def save_json(path: Path, obj: Any) -> None:
         raise TypeError(f"Object of type {type(value).__name__} is not JSON serializable")
 
     path.write_text(json.dumps(obj, indent=2, sort_keys=True, default=default), encoding="utf-8")
+
+
+def negative_metadata_frame(records: Sequence[Dict[str, Any]]) -> pd.DataFrame:
+    """Return one reproducibility row per generated negative sample.
+
+    The table intentionally stores both human-readable metadata and the exact
+    comma-separated gene set. This makes it possible to audit every synthetic
+    decoy without re-running the sampler.
+    """
+    required_cols = [
+        "sample_id",
+        "negative_type",
+        "gene_ids",
+        "target_size",
+        "actual_size",
+        "seed",
+        "split",
+        "source_pathway_id",
+        "source_database",
+        "source_family",
+        "source_pathway_id_1",
+        "source_pathway_id_2",
+        "source_pathway_id_3",
+        "source_family_1",
+        "source_family_2",
+        "source_family_3",
+        "kept_fraction",
+        "replaced_fraction",
+        "replacement_fraction",
+        "n_kept",
+        "n_replaced",
+        "contribution_fraction_1",
+        "contribution_fraction_2",
+        "contribution_fraction_3",
+        "random_fill_count",
+        "max_overlap_with_curated",
+        "closest_curated_pathway",
+    ]
+    rows = []
+    for record in records:
+        if int(record.get("label", -1)) != 0:
+            continue
+        row = {col: record.get(col, "NA") for col in required_cols}
+        row["sample_id"] = record.get("sample_id", record.get("id", ""))
+        row["negative_type"] = record.get("negative_type", record.get("type", ""))
+        row["gene_ids"] = record.get("gene_ids", ",".join(record.get("genes", [])))
+        row["actual_size"] = record.get("actual_size", len(record.get("genes", [])))
+        rows.append(row)
+    return pd.DataFrame(rows, columns=required_cols)
+
+
+def negative_design_summary_frame(records: Sequence[Dict[str, Any]]) -> pd.DataFrame:
+    """Summarize negative balance, size matching, and size-distribution checks."""
+    pos_sizes = np.asarray([len(record["genes"]) for record in records if int(record.get("label", -1)) == 1], dtype=float)
+    neg_records = [record for record in records if int(record.get("label", -1)) == 0]
+    neg_sizes = np.asarray([len(record["genes"]) for record in neg_records], dtype=float)
+    rows: List[Dict[str, Any]] = []
+
+    def add_row(name: str, subset: Sequence[Dict[str, Any]]) -> None:
+        sizes = np.asarray([len(record["genes"]) for record in subset], dtype=float)
+        if len(sizes) == 0:
+            return
+        ks = ks_2samp(pos_sizes, sizes) if len(pos_sizes) and len(sizes) else None
+        rows.append(
+            {
+                "comparison": name,
+                "n_positive": int(len(pos_sizes)),
+                "n_negative": int(len(sizes)),
+                "negative_to_positive_ratio": float(len(sizes) / len(pos_sizes)) if len(pos_sizes) else np.nan,
+                "median_size_positive": float(np.median(pos_sizes)),
+                "median_size_negative": float(np.median(sizes)),
+                "mean_size_positive": float(np.mean(pos_sizes)),
+                "mean_size_negative": float(np.mean(sizes)),
+                "ks_statistic": float(ks.statistic) if ks else np.nan,
+                "ks_p_value": float(ks.pvalue) if ks else np.nan,
+            }
+        )
+
+    add_row("all_negatives", neg_records)
+    for negative_type in PRIMARY_NEGATIVE_TYPES:
+        add_row(negative_type, [record for record in neg_records if record.get("negative_type") == negative_type])
+    return pd.DataFrame(rows)
 
 
 def write_tables(  # noqa: C901 (complexity unavoidable for single-pass output)
@@ -874,7 +1479,7 @@ def write_tables(  # noqa: C901 (complexity unavoidable for single-pass output)
             for name, res in model_results.items()
         }
     ).T
-    perf_df.to_csv(TABLE_DIR / "table1_performance.csv")
+    perf_df.to_csv(TABLE_DIR / "table1_seed42_performance.csv")
 
     shap_df.to_csv(TABLE_DIR / "table2_shap_importance.csv", index=False)
     ablation_df.to_csv(TABLE_DIR / "table3_ablation.csv", index=False)
@@ -882,6 +1487,10 @@ def write_tables(  # noqa: C901 (complexity unavoidable for single-pass output)
     fs_df.to_csv(TABLE_DIR / "feature_selection_cv.csv", index=False)
     mi_df.to_csv(TABLE_DIR / "selected_go_terms.csv", index=False)
     candidate_df.to_csv(TABLE_DIR / "candidate_results.csv", index=False)
+    candidate_df.to_csv(TABLE_DIR / "table8_candidate_scoring.csv", index=False)
+    neg_meta_df = negative_metadata_frame(records)
+    neg_meta_df.to_csv(TABLE_DIR / "negative_metadata.csv", index=False)
+    negative_design_summary_frame(records).to_csv(TABLE_DIR / "negative_design_summary.csv", index=False)
 
     repro_dir.mkdir(parents=True, exist_ok=True)
     save_json(repro_dir / "samples.json", records)
@@ -931,6 +1540,10 @@ def write_tables(  # noqa: C901 (complexity unavoidable for single-pass output)
     save_json(TABLE_DIR / "final_no_emb.json", summary)
     return final
 
+
+# ---------------------------------------------------------------------------
+# Figure generation
+# ---------------------------------------------------------------------------
 
 def plot_outputs(  # noqa: C901
     model_results: Dict[str, Dict[str, Any]],
@@ -991,6 +1604,7 @@ def plot_outputs(  # noqa: C901
     plt.tight_layout()
     plt.savefig(FIG_DIR / "fig6_ablation.png", dpi=300)
     plt.savefig(FIG_DIR / "fig6_ablation.pdf")
+    plt.savefig(FIG_DIR / "fig_ablation.png", dpi=300)
     plt.close()
 
     plt.figure(figsize=(6.5, 4.5))
@@ -1069,12 +1683,76 @@ def write_reproducibility_artifacts(  # used by multi-seed runs
     save_json(repro_dir / "feature_names.json", list(feature_names))
 
 
-def compact_dataset_summary(  # lightweight version for multi-seed runs
+def write_intermediate_variables(
+    seed: int,
+    records: Sequence[Dict[str, Any]],
+    split_info: Dict[str, Any],
+    selected_go: Sequence[str],
+    feature_names: Sequence[str],
+    x_all: np.ndarray,
+    y_all: np.ndarray,
+    train_idx: np.ndarray,
+    test_idx: np.ndarray,
+) -> None:
+    """Save model-input arrays needed to reproduce a run without resampling.
+
+    JSON artifacts store the human-readable samples and selected GO terms.
+    This NPZ stores the exact numeric feature matrix and train/test indices used
+    by the classifiers. Together they are the smallest practical set of
+    intermediate variables needed to audit or replay the fitted benchmark.
+    """
+    out_dir = OUTPUT_DIR / "intermediate" / f"seed_{seed:04d}"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    sample_ids = np.asarray([str(record["id"]) for record in records], dtype=str)
+    sample_types = np.asarray([str(record.get("type", "")) for record in records], dtype=str)
+    sample_splits = np.asarray([str(record.get("split", "")) for record in records], dtype=str)
+    np.savez_compressed(
+        out_dir / "model_input_arrays.npz",
+        X_all=x_all,
+        y_all=y_all,
+        train_idx=train_idx,
+        test_idx=test_idx,
+        sample_ids=sample_ids,
+        sample_types=sample_types,
+        sample_splits=sample_splits,
+        feature_names=np.asarray(list(feature_names), dtype=str),
+        selected_go=np.asarray(list(selected_go), dtype=str),
+    )
+    save_json(
+        out_dir / "model_input_manifest.json",
+        {
+            "seed": seed,
+            "n_samples": int(len(records)),
+            "n_features": int(x_all.shape[1]),
+            "n_train": int(len(train_idx)),
+            "n_test": int(len(test_idx)),
+            "arrays": {
+                "X_all": "Feature matrix in sample order.",
+                "y_all": "Binary labels in sample order.",
+                "train_idx": "Row indices used for training.",
+                "test_idx": "Row indices used for held-out testing.",
+                "sample_ids": "Sample IDs aligned to X_all rows.",
+                "sample_types": "curated_pathway or negative type aligned to X_all rows.",
+                "sample_splits": "train/test split label aligned to X_all rows.",
+                "feature_names": "Column names aligned to X_all columns.",
+                "selected_go": "GO terms selected using the training split only.",
+            },
+            "split_protocol": split_info.get("split_protocol"),
+            "source_files": {
+                "human_readable_samples": str(REPRO_DIR / "samples.json") if seed == DEFAULT_REFERENCE_SEED else "tables/multiseed/reproducibility/seed_XXXX/samples.json",
+                "human_readable_splits": str(REPRO_DIR / "splits.json") if seed == DEFAULT_REFERENCE_SEED else "tables/multiseed/reproducibility/seed_XXXX/splits.json",
+            },
+        },
+    )
+
+
+def compact_dataset_summary(
     data: DataBundle,
     selected_go: Sequence[str],
     feature_names: Sequence[str],
     sample_meta: Dict[str, Any],
 ) -> Dict[str, Any]:
+    """Build a lightweight dataset summary dict for multi-seed JSON output."""
     return {
         "n_pathways": len(data.pathways),
         "n_kegg": data.n_kegg,
@@ -1087,6 +1765,10 @@ def compact_dataset_summary(  # lightweight version for multi-seed runs
         "negatives": sample_meta,
     }
 
+
+# ---------------------------------------------------------------------------
+# Pipeline orchestration (single-seed and multi-seed)
+# ---------------------------------------------------------------------------
 
 def run_single_analysis(
     data: DataBundle,
@@ -1107,19 +1789,13 @@ def run_single_analysis(
     """
     np.random.seed(seed)
 
-    print(f"Generating deterministic hard negatives (seed={seed})...")
-    records, sample_meta = build_samples(data, seed=seed)
+    print(f"Splitting positives and generating split-specific synthetic negatives (seed={seed})...")
+    # The main benchmark now splits curated positives first. Negative decoys are
+    # generated separately from the train and test positive pools so empirical
+    # size matching cannot accidentally use test-positive sizes during training.
+    records, sample_meta, split_info, train_idx, test_idx = build_split_samples(data, seed=seed)
     y_all = np.asarray([record["label"] for record in records], dtype=int)
-    all_idx = np.arange(len(records))
-    train_idx, test_idx = train_test_split(
-        all_idx, test_size=0.20, random_state=seed, stratify=y_all
-    )
     train_records = [records[int(i)] for i in train_idx]
-    split_info = {
-        "random_state": seed,
-        "train_ids": [records[int(i)]["id"] for i in train_idx],
-        "test_ids": [records[int(i)]["id"] for i in test_idx],
-    }
 
     print("Selecting GO features on training split only...")
     selected_go, fs_df, mi_df = select_go_terms(
@@ -1132,6 +1808,17 @@ def run_single_analysis(
     x_train, x_test = x_all[train_idx], x_all[test_idx]
     y_train, y_test = y_all[train_idx], y_all[test_idx]
     print(f"  D={x_all.shape[1]} = GO({len(selected_go)}) + Jaccard(4) + Size(2)")
+    write_intermediate_variables(
+        seed=seed,
+        records=records,
+        split_info=split_info,
+        selected_go=selected_go,
+        feature_names=feature_names,
+        x_all=x_all,
+        y_all=y_all,
+        train_idx=train_idx,
+        test_idx=test_idx,
+    )
 
     print("Training models...")
     models = make_models(seed)
@@ -1191,6 +1878,14 @@ def run_single_analysis(
     print("Scoring deterministic candidates...")
     candidates = construct_candidates(data, candidate_seed=candidate_seed)
     candidate_df = score_candidates(candidates, xgb_model, selected_go, data, seed=seed)
+    boundary_df = score_boundary_partial_probes(
+        test_records=[records[int(i)] for i in test_idx],
+        model=xgb_model,
+        selected_go=selected_go,
+        data=data,
+        seed=seed,
+    )
+    boundary_summary_df = summarize_boundary_probes(boundary_df)
 
     if write_outputs:
         if ablation_df.empty or shap_df.empty:
@@ -1219,6 +1914,9 @@ def run_single_analysis(
         if write_figures:
             print("Writing figures...")
             plot_outputs(model_results, ablation_df, shap_df, fs_df, candidate_df, data)
+        boundary_df.to_csv(TABLE_DIR / "boundary_partial_probe_scores.csv", index=False)
+        boundary_summary_df.to_csv(TABLE_DIR / "boundary_partial_probe_summary.csv", index=False)
+        plot_boundary_probe_scores(boundary_df)
     else:
         results = {
             "generated_by": "run_no_embedding_reproducible.py",
@@ -1233,6 +1931,7 @@ def run_single_analysis(
             },
             "performance": model_results,
             "candidates": candidate_df.to_dict(orient="records"),
+            "boundary_partial_probes": boundary_summary_df.to_dict(orient="records"),
             "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
         }
         write_reproducibility_artifacts(
@@ -1355,6 +2054,8 @@ def run_multiseed_analysis(
     run_df.to_csv(output_dir / "multiseed_runs.csv", index=False)
     summary_df.to_csv(output_dir / "multiseed_summary.csv", index=False)
     candidate_df.to_csv(output_dir / "multiseed_candidate_results.csv", index=False)
+    run_df.to_csv(TABLE_DIR / "multiseed_per_seed_results.csv", index=False)
+    summary_df.to_csv(TABLE_DIR / "table2_multiseed_summary.csv", index=False)
 
     payload = {
         "generated_by": "run_no_embedding_reproducible.py --seeds",

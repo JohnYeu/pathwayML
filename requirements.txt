@@ -5,3 +5,6 @@ xgboost
 shap
 matplotlib
 scipy
+lightgbm
+catboost
+duckdb

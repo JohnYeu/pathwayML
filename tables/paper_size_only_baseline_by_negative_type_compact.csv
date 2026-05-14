@@ -1,0 +1,6 @@
+comparison,seed42_auroc,seed42_auprc,auroc_mean_sd,auprc_mean_sd,f1_mean_sd,positive_size_median_mean,negative_size_median_mean,n_negative_mean
+All mixed negatives,0.516,0.347,0.528 +/- 0.016,0.360 +/- 0.016,0.398 +/- 0.024,15.6,13.0,216.0
+empirical size matched random,0.528,0.683,0.494 +/- 0.041,0.663 +/- 0.030,0.540 +/- 0.048,15.6,16.0,54.0
+full replacement shuffled,0.4,0.604,0.519 +/- 0.046,0.683 +/- 0.034,0.545 +/- 0.055,15.6,15.1,54.0
+corrupted pathway,0.532,0.707,0.501 +/- 0.043,0.674 +/- 0.025,0.542 +/- 0.048,15.6,15.3,54.0
+cross pathway mixture,0.605,0.753,0.598 +/- 0.037,0.766 +/- 0.030,0.566 +/- 0.043,15.6,9.5,54.0

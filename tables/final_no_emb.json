@@ -1,40 +1,62 @@
 {
   "dataset": {
-    "D": 80,
-    "features": "GO freq (74) + Jaccard (4) + Size (2) = 80",
+    "D": 76,
+    "features": "GO freq (70) + Jaccard (4) + Size (2) = 76",
     "n_aracyc": 383,
     "n_genes": 27435,
     "n_go_filtered": 790,
-    "n_go_selected": 74,
+    "n_go_selected": 70,
     "n_kegg": 156,
     "n_pathways": 539,
     "negatives": {
-      "jaccard_matched_attempts": 2453,
       "n_neg": 1078,
       "n_pos": 539,
+      "n_test_neg": 216,
+      "n_test_pos": 108,
+      "n_train_neg": 862,
+      "n_train_pos": 431,
       "negative_counts": {
-        "chimera": 269,
-        "co_annotation": 269,
-        "jaccard_matched": 269,
-        "shuffled": 271
+        "corrupted_pathway": 269,
+        "cross_pathway_mixture": 269,
+        "empirical_size_matched_random": 270,
+        "full_replacement_shuffled": 270
       },
-      "real_pathway_jaccard_median": 0.17396850063516733,
-      "real_pathway_jaccard_p25": 0.12151854165868145
+      "negative_counts_by_split": {
+        "test::corrupted_pathway": 54,
+        "test::cross_pathway_mixture": 54,
+        "test::empirical_size_matched_random": 54,
+        "test::full_replacement_shuffled": 54,
+        "train::corrupted_pathway": 215,
+        "train::cross_pathway_mixture": 215,
+        "train::empirical_size_matched_random": 216,
+        "train::full_replacement_shuffled": 216
+      },
+      "negative_multiplier": 2,
+      "negative_scheme": "empirical_size_matched_random__full_replacement_shuffled__corrupted_pathway__cross_pathway_mixture",
+      "negative_to_positive_ratio": "2:1",
+      "negative_type_definitions": {
+        "corrupted_pathway": "A small true pathway core (20-50%) is kept and the remaining genes are replaced by random background genes.",
+        "cross_pathway_mixture": "Genes are drawn from two or more different broad pathway families, with no single source contributing more than 60%.",
+        "empirical_size_matched_random": "Uniform background genes with target sizes sampled from the empirical positive pathway size distribution for the same split.",
+        "full_replacement_shuffled": "A source pathway size is preserved but all original genes are replaced by background genes."
+      },
+      "pure_partial_training_negatives": false,
+      "real_pathway_jaccard_median": 0.17396850063516733
     }
   },
   "note": "NO EMBEDDING in this version. SVD/UMAP features are not used by the final model.",
   "performance": {
     "Logistic Regression": {
-      "cv": "0.911 +/- 0.003 SE",
-      "test_auroc": 0.924
+      "cv": "0.959 +/- 0.002 SE",
+      "test_auroc": 0.973
     },
     "Random Forest": {
-      "cv": "0.946 +/- 0.002 SE",
-      "test_auroc": 0.94
+      "cv": "0.974 +/- 0.005 SE",
+      "test_auroc": 0.978
     },
     "XGBoost": {
-      "cv": "0.952 +/- 0.002 SE",
-      "test_auroc": 0.948
+      "cv": "0.983 +/- 0.002 SE",
+      "test_auroc": 0.982
     }
   }
 }
